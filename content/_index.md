@@ -17,8 +17,8 @@ Prior to my current role, I worked with [ByteDance](https://www.bytedance.com/en
 
 1. **CryoFM: A Flow-based Foundation Model for Cryo-EM Densities**  
    Yi Zhou\*, Yilai Li\*, **Jing Yuan**\*, Quanquan Gu  
-   arXiv preprint, 2024  
-   [[Paper]](https://arxiv.org/abs/2410.08631) · [[Homepage]](https://bytedance.github.io/cryostar/cryofm.html)
+   ICLR, 2025  
+   [[OpenReview]](https://openreview.net/forum?id=T4sMzjy7fO) · [[Homepage]](https://bytedance.github.io/cryostar/cryofm.html)
 
 2. **CryoSTAR: leveraging structural priors and constraints for cryo-EM heterogeneous reconstruction**  
    Yilai Li\*, Yi Zhou\*, **Jing Yuan**\*, Fei Ye, Quanquan Gu  

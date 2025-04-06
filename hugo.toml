@@ -13,7 +13,23 @@ title = "Jing Yuan"  # Change to your name or preferred site title
 
 # Site parameters
 [params]
-  footer = "&copy; Jing Yuan {Year}"
+  footer = "&copy; Jing Yuan 2024-{Year}"
+  description = "Jing Yuan's personal website - Research, Blog and Projects"
+  keywords = ["Jing Yuan", "Research", "Blog", "Projects", "Personal Website"]
+  author = "Jing Yuan"
+  # Social media
+  [[params.social]]
+    name = "GitHub"
+    url = "https://github.com/eugenejyuan"
+  # Open Graph
+  [params.opengraph]
+    image = "/images/og-image.jpg"
+    type = "website"
+  # Twitter Cards
+  [params.twitter]
+    card = "summary_large_image"
+    site = "@yourtwitterhandle"
+    creator = "@yourtwitterhandle"
 
 # Menu configuration
 [menu]

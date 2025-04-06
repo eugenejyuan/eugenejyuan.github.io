@@ -7,18 +7,20 @@ title: "Publications & Services"
 
 \* Equal contribution
 
-### 2024
+### 2025
 
 [<img src="https://lf3-nlp-opensource.bytetos.com/obj/nlp-opensource/cryofm/images/intro.jpg" style="max-width:30%;min-width:300px;float:right;box-shadow:0 4px 8px rgba(0,0,0,0.1);" alt="CryoFM" />](https://bytedance.github.io/cryostar/cryofm.html)
 
 1. **CryoFM: A Flow-based Foundation Model for Cryo-EM Densities**  
    Yi Zhou\*, Yilai Li\*, **Jing Yuan**\*, Quanquan Gu  
-   arXiv preprint, 2024  
-   [[Paper]](https://arxiv.org/abs/2410.08631) · [[Homepage]](https://bytedance.github.io/cryostar/cryofm.html)
+   ICLR, 2025  
+   [[OpenReview]](https://openreview.net/forum?id=T4sMzjy7fO) · [[Homepage]](https://bytedance.github.io/cryostar/cryofm.html)
+
+### 2024
 
 [<img src="https://lf3-nlp-opensource.bytetos.com/obj/nlp-opensource/cryostar/images/main_figure.png" style="max-width:30%;min-width:300px;float:right;box-shadow:0 4px 8px rgba(0,0,0,0.1);margin-top:15px;" alt="CryoSTAR" />](https://bytedance.github.io/cryostar/)
 
-2. **CryoSTAR: leveraging structural priors and constraints for cryo-EM heterogeneous reconstruction**  
+1. **CryoSTAR: leveraging structural priors and constraints for cryo-EM heterogeneous reconstruction**  
    Yilai Li\*, Yi Zhou\*, **Jing Yuan**\*, Fei Ye, Quanquan Gu  
    Nature Methods, 2024  
    [[Paper]](https://www.nature.com/articles/s41592-024-02486-1) · [[Homepage]](https://bytedance.github.io/cryostar/) · [[Code]](https://github.com/bytedance/cryostar)

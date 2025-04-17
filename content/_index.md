@@ -13,16 +13,11 @@ Prior to my current role, I worked with [ByteDance](https://www.bytedance.com/en
 
 ✉️ eugenejyuan AT gmail DOT com · [🎓 Google Scholar](https://scholar.google.com/citations?user=ECegJ0EAAAAJ) · [💻 GitHub](https://github.com/eugenejyuan) · [𝕏 Twitter](https://twitter.com/eugenejyuan)
 
-### Selected Publications
+### Recent Publications
 
 1. **CryoFM: A Flow-based Foundation Model for Cryo-EM Densities**  
    Yi Zhou\*, Yilai Li\*, **Jing Yuan**\*, Quanquan Gu  
    ICLR, 2025  
    [[OpenReview]](https://openreview.net/forum?id=T4sMzjy7fO) · [[Homepage]](https://bytedance.github.io/cryostar/cryofm.html)
-
-2. **CryoSTAR: leveraging structural priors and constraints for cryo-EM heterogeneous reconstruction**  
-   Yilai Li\*, Yi Zhou\*, **Jing Yuan**\*, Fei Ye, Quanquan Gu  
-   Nature Methods, 2024  
-   [[Paper]](https://www.nature.com/articles/s41592-024-02486-1) · [[Homepage]](https://bytedance.github.io/cryostar/) · [[Code]](https://github.com/bytedance/cryostar)
 
 [View All Publications →](/research/)

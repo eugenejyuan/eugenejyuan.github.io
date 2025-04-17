@@ -28,12 +28,12 @@ title: "Publications & Services"
 
 ### 2019
 
-3. **3D Layout encoding network for spatial-aware 3D saliency modelling**  
+1. **3D Layout encoding network for spatial-aware 3D saliency modelling**  
    **Jing Yuan**, Yang Cao, Yu Kang, Weiguo Song, Zhongcheng Yin, Rui Ba, Qing Ma  
    IET Computer Vision, 2019  
    [[Paper]](https://ietresearch.onlinelibrary.wiley.com/doi/full/10.1049/iet-cvi.2018.5591)
 
-4. **SmokeNet: Satellite Smoke Scene Detection Using Convolutional Neural Network with Spatial and Channel-Wise Attention**  
+2. **SmokeNet: Satellite Smoke Scene Detection Using Convolutional Neural Network with Spatial and Channel-Wise Attention**  
    Rui Ba, Chen Chen, **Jing Yuan**, Weiguo Song, Siuming Lo  
    Remote Sensing, 2019  
    [[Paper]](https://doi.org/10.3390/rs11141702) [[Homepage]](https://complex.ustc.edu.cn/2019/0802/c18202a389656/page.htm)

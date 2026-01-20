@@ -1,0 +1,62 @@
+---
+import { getBlogCollection, getUniqueTagsWithCountBySlug } from 'astro-pure/server'
+import { Button } from 'astro-pure/user'
+import PageLayout from '@/layouts/BaseLayout.astro'
+import { getPublicationTagsWithCountBySlug } from '@/data/publications'
+
+const allPosts = await getBlogCollection()
+const blogTags = getUniqueTagsWithCountBySlug(allPosts)
+const publicationTags = getPublicationTagsWithCountBySlug()
+const tagCounts = new Map<string, number>()
+const tagLabels = new Map<string, string>()
+
+blogTags.forEach(({ slug, label, count }) => {
+  tagCounts.set(slug, (tagCounts.get(slug) || 0) + count)
+  if (!tagLabels.has(slug)) tagLabels.set(slug, label)
+})
+publicationTags.forEach(({ slug, label, count }) => {
+  tagCounts.set(slug, (tagCounts.get(slug) || 0) + count)
+  if (!tagLabels.has(slug)) tagLabels.set(slug, label)
+})
+
+const allTags = [...tagCounts.entries()]
+  .map(([slug, count]) => ({ slug, label: tagLabels.get(slug) || slug, count }))
+  .sort((a, b) => b.count - a.count)
+
+const meta = {
+  description: "A list of all the topics I've written about in my posts and publications",
+  title: 'All Tags'
+}
+---
+
+<PageLayout {meta}>
+  <Button title='Back' variant='back' useHistoryBack />
+  <main class='mt-6 lg:mt-10'>
+    <div id='content-header' class='animate'>
+      <h1 class='mb-6 text-3xl font-medium'>Tags</h1>
+    </div>
+
+    <div id='content' class='animate'>
+      {
+        allTags.length > 0 ? (
+          <ul class='flex flex-wrap gap-4'>
+            {allTags.map(({ slug, label, count }) => (
+              <li>
+                <Button
+                  href={`/tags/${encodeURIComponent(slug)}`}
+                  variant='pill'
+                  class='gap-x-1'
+                >
+                  {label}
+                  <span class='text-xs'>{count}</span>
+                </Button>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>Any tag yet.</p>
+        )
+      }
+    </div>
+  </main>
+</PageLayout>

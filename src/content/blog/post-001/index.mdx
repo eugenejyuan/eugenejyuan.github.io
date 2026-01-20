@@ -1,0 +1,107 @@
+---
+title: 'Vibe Coding Notes'
+publishDate: 2026-01-20
+description: 'A real-world log of what worked, what broke, and how I learned to use AI without giving up control.'
+heroImage:
+  src: ./thumbnail.jpg
+tags:
+  - Vibe Coding
+  - Productivity
+  - Experience
+language: 'English'
+comment: false
+---
+
+I've been playing with “vibe coding” lately. You know the vibe: you describe what you want, the model writes the code, and you pretend 
+you are a calm, visionary product person.
+
+It's honestly impressive.
+
+LLMs already changed how engineers work. Not just faster typing. It's more like... the boundary of what one person can do got wider.
+
+But when I tried using it for my research projects, I realized something important. It is much healthier to treat the AI as a junior dev. 
+Ask it to write a specific, small function. Do not ask it to refactor a huge chunk of code. That is unsafe. Also, reviewing a mountain of
+AI-generated code is a mental burden. The trick is knowing exactly what small tasks to delegate to maximize your own efficiency.
+
+Some people say starting a project from scratch is the best way to "vibe code." So I tried it on a few small, independent projects with 
+clear requirements, mostly using [Cursor](https://cursor.com/).
+
+**The Rule:** I tried to write as little code as possible. I only described requirements or bugs. I let the LLM build and debug freely.
+
+Here's what I felt.
+
+## Projects Tried
+
+### The Resume Refactor
+
+Repo: [yuan2-resume](https://github.com/eugenejyuan/yuan2-resume/).
+
+This started because I wanted to organize my past work and plan my future. Then I thought: fine, let's update the resume. I found a 
+template I liked: [yuan-resume](https://github.com/xyz-yuanhf/yuan-resume). 
+It looked great. But in real use, I hit alignment issues. Some macros also felt too specific. Not very reusable.
+
+That sounded like a perfect vibe-coding task: clear goal, real constraints, lots of boring details.
+
+My original dream prompt was basically:
+
+```text
+Based on this template: reduce magic-number spacing hacks, use modern LaTeX packages, and expose clean, general interfaces.
+```
+
+The AI only partially worked. As the "vibe coding" went on, the code started to bloat. It went against my goal of simplicity. 
+Also, asking AI to handle "abstraction" is tough. It rarely matches what you have in mind.
+
+I actually finished the core code by chatting with Gemini and GPT. I defined the interfaces myself. I described the behavior 
+precisely. Once I gave specific constraints, the AI filled in the details nicely.
+
+
+### The AI for CryoEM Project Page
+
+Site: [cryofm](https://bytedance-seed.github.io/cryofm/).
+
+This was for a recent research project. And web dev is not my comfort zone. Social media says AI is great at building websites. Annoying 
+statement. Also... kind of true.
+
+I chose the [Astro](https://astro.build/) framework and a portfolio template [ricoui-portfolio](https://github.com/ricocc/ricoui-portfolio). I opened Cursor
+and transformed into an annoying Product Manager. The AI became my infinitely patient programmer.
+
+For many edits—text, layout, theme colors, Cursor could understand the repo, locate the right files, and make changes. That saved a lot of time.
+
+But I also hit “not-AGI-yet” moments.
+
+One example: I asked it to format a pseudo-code block in the blog. The line numbers and code indentation got messed up.
+I tried to explain the desired alignment again and again. No luck. I even used a screenshot. Still no luck.
+
+Then I switched approach and told it:
+
+```text
+Do this as a two-column table. First column is line numbers. Second column is code.
+```
+
+Boom. Solved.
+
+### Rebuilding this Personal Site
+
+This was inspired by an article praising Claude's frontend skills[^claude-frontend-article]. I decided to rewrite my personal site using the 
+[Pure](https://github.com/cworld1/astro-theme-pure) theme in [Astro](https://astro.build/).
+
+I used GPT-5.2 Codex (via Cursor) to help with the design. It was surprisingly good. It broke away from those boring "safe design choices" and gave me the pretty homepage design.
+
+But it still had moments where it clearly wasn't AGI. For example, I wanted my publication cards to match the background style of my blog cards (transparent, gradient). 
+I asked for a 1:1 replica. Multiple times. Still not quite right.
+
+In the end, I asked it to point me to where each effect was implemented. Then I manually copy-pasted and aligned it myself.
+
+## Lessons Learned
+
+LLMs have definitely boosted my solo productivity. But to use them well, I learned a few things:
+
+1. **Be Precise:** You must describe your requirements clearly.
+2. **You Are Still the Brain:** It isn't true intelligence yet. Human problem-solving and technical architecture are still efficient.
+
+And yes, I'm still amazed by how fast this technology evolves. We're creating more and more content to feed the next model.
+Meanwhile AIGC is already messing up parts of the internet. What's the lasting human value in that world?
+
+Honestly... I'm not sure yet.
+
+[^claude-frontend-article]: https://mp.weixin.qq.com/s/hKAlv_RZUzbIv5pGpnoZqg

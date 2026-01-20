@@ -1,0 +1,176 @@
+---
+import { getBlogCollection, sortMDByDate } from 'astro-pure/server'
+import { FormattedDate } from 'astro-pure/user'
+import PageLayout from '@/layouts/BaseLayout.astro'
+import config from '@/site-config'
+
+const MAX_POSTS = 3
+const allPosts = await getBlogCollection()
+const allPostsByDate = sortMDByDate(allPosts).slice(0, MAX_POSTS)
+
+const profile = {
+  role: 'Builder · Writer',
+  // title: 'Independent Researcher',
+  affiliation: 'ByteDance Seed',
+  location: 'Shanghai · China',
+  interests: ['AGI', 'Math'],
+  summary:
+    '5+ years of R&D at ByteDance / SenseTime. \nBuilding a rigorous mathematical toolkit to explore the boundaries of AGI.'
+}
+
+const metaItems = [
+  { label: 'Status', value: 'Deep Diving' },
+  { label: 'Previous', value: profile.affiliation },
+  { label: 'Focus', value: profile.interests.join(' · ') },
+  { label: 'Location', value: profile.location }
+]
+
+const formatNewsDate = (date: Date) =>
+  new Intl.DateTimeFormat(config.locale.dateLocale, {
+    ...config.locale.dateOptions,
+    timeZone: 'UTC'
+  }).format(date)
+
+// News items for publications updates and other announcements
+const newsItems = [
+  {
+    date: new Date('2026-01-19'),
+    type: 'update',
+    title: 'Website redesign launched',
+    description: 'Academic portfolio site relaunched with refined layout and clearer research presentation.'
+  },
+  {
+    date: new Date('2025-12-29'),
+    type: 'publication',
+    title: 'Preprint available on bioRxiv',
+    description: 'An extended version of CryoFM, a generative model for cryo-EM density maps, is available as a bioRxiv preprint.',
+    link: '/publications'
+  },
+]
+
+---
+
+<PageLayout meta={{ title: 'Home' }} highlightColor='#B7C6D4'>
+  <main class='academic-home'>
+    <section class='academic-hero animate' id='content-header'>
+      <div class='academic-intro'>
+        <div class='academic-identity'>
+          <div>
+            <p class='academic-kicker'>{profile.role}</p>
+            <h1 class='academic-name'>{config.author}</h1>
+            <!-- <p class='academic-title'>{profile.title}</p> -->
+          </div>
+        </div>
+
+        <p class='academic-summary'>{profile.summary}</p>
+
+        <dl class='academic-meta'>
+          {metaItems.map((item) => (
+            <div>
+              <dt>{item.label}</dt>
+              <dd>{item.value}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+
+      <section class='academic-news animate' id='news-section'>
+        <div class='academic-section-label'>News</div>
+        {newsItems.length > 0 ? (
+          <ul class='academic-news-list'>
+            {newsItems.map((item) => (
+              <li class='academic-news-item'>
+                {item.link ? (
+                  <a class='academic-news-link' href={item.link} data-astro-prefetch>
+                    <div class='academic-news-meta'>
+                      <time class='academic-news-date' datetime={item.date.toISOString()}>
+                        {formatNewsDate(item.date)}
+                      </time>
+                      <span class='academic-news-dot' aria-hidden='true'></span>
+                      <span class='academic-news-type'>{item.type}</span>
+                    </div>
+                    <h3 class='academic-news-title'>{item.title}</h3>
+                    <p class='academic-news-description'>{item.description}</p>
+                  </a>
+                ) : (
+                  <div class='academic-news-content'>
+                    <div class='academic-news-meta'>
+                      <time class='academic-news-date' datetime={item.date.toISOString()}>
+                        {formatNewsDate(item.date)}
+                      </time>
+                      <span class='academic-news-dot' aria-hidden='true'></span>
+                      <span class='academic-news-type'>{item.type}</span>
+                    </div>
+                    <h3 class='academic-news-title'>{item.title}</h3>
+                    <p class='academic-news-description'>{item.description}</p>
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p class='academic-empty'>No news yet.</p>
+        )}
+      </section>
+
+      <aside class='academic-latest animate' id='content'>
+        <div class='academic-section-label'>Recent Posts</div>
+        {allPostsByDate.length > 0 ? (
+          <ul class='academic-posts'>
+            {allPostsByDate.map((post) => {
+              const postDate = post.data.updatedDate ?? post.data.publishDate
+              return (
+                <li class='academic-post-item'>
+                  <a class='academic-post' href={`/blog/${post.id}`} data-astro-prefetch>
+                    <div class='academic-post-content-wrapper'>
+                      {postDate ? (
+                        <time class='academic-post-date' datetime={postDate.toISOString()}>
+                          <FormattedDate date={postDate} />
+                        </time>
+                      ) : (
+                        <span class='academic-post-date'>—</span>
+                      )}
+                      <div class='academic-post-main'>
+                        <div class='academic-post-title-row'>
+                          <h3 class='academic-post-title'>{post.data.title}</h3>
+                          <svg
+                            xmlns='http://www.w3.org/2000/svg'
+                            width='16'
+                            height='16'
+                            viewBox='0 0 24 24'
+                            fill='none'
+                            stroke-width='2.5'
+                            stroke-linecap='round'
+                            stroke-linejoin='round'
+                            class='academic-post-arrow'
+                          >
+                            <line
+                              x1='5'
+                              y1='12'
+                              x2='19'
+                              y2='12'
+                              class='academic-post-arrow-line'
+                            ></line>
+                            <polyline
+                              points='12 5 19 12 12 19'
+                              class='academic-post-arrow-polyline'
+                            ></polyline>
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                  </a>
+                </li>
+              )
+            })}
+          </ul>
+        ) : (
+          <p class='academic-empty'>No posts yet.</p>
+        )}
+        <a class='academic-link' href='/blog'>
+          View all posts →
+        </a>
+      </aside>
+    </section>
+  </main>
+</PageLayout>

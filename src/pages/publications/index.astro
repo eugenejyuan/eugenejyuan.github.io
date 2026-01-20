@@ -1,0 +1,241 @@
+---
+import { Button, Icon } from 'astro-pure/user'
+import { tagToSlug } from 'astro-pure/utils'
+import PageLayout from '@/layouts/BaseLayout.astro'
+import { getPublicationTagsBySlug, publications, type Publication } from '@/data/publications'
+
+// Group publications by year and sort descending
+const publicationsByYear = publications.reduce<Record<string, Publication[]>>((acc, pub) => {
+  if (!acc[pub.year]) {
+    acc[pub.year] = []
+  }
+  acc[pub.year].push(pub)
+  return acc
+}, {})
+
+const sortedYears = Object.keys(publicationsByYear).sort((a, b) => Number(b) - Number(a))
+
+// Extract all unique tags
+const allTags = getPublicationTagsBySlug()
+
+const meta = {
+  description: 'A curated list of research publications and academic work',
+  title: 'Publications'
+}
+---
+
+<PageLayout {meta} highlightColor='#B7C6D4'>
+  <Button title='Back' href='/' variant='back' />
+  <main class='mt-6 lg:mt-10'>
+    <div id='content-header' class='animate'>
+      <h1 class='mb-6 mt-6 text-3xl font-medium sm:mt-10'>Publications</h1>
+      <p class='text-muted-foreground mb-8 max-w-2xl'>
+        A curated list of research publications and academic work.
+        <span class='block mt-2 text-xs italic text-muted-foreground/80'>
+          * Equal contribution.
+        </span>
+      </p>
+    </div>
+
+    <div class='grid gap-y-16 sm:grid-cols-[3fr_1fr] sm:gap-x-8'>
+      <section aria-label='Publications list' class='animate' id='content'>
+        {sortedYears.map((year) => (
+          <div id={`year-${year}`} class='mb-12 scroll-mt-20'>
+            <h2 class='mb-6 text-2xl font-medium flex items-center gap-3'>
+              <span class='text-muted-foreground text-lg font-normal'>{year}</span>
+              <span class='h-px flex-1 bg-border'></span>
+              <span class='text-sm text-muted-foreground font-normal'>
+                {publicationsByYear[year].length} {publicationsByYear[year].length === 1 ? 'publication' : 'publications'}
+              </span>
+            </h2>
+            <ul class='flex flex-col gap-y-6'>
+              {publicationsByYear[year].map((pub) => (
+                <li class='publication-item group'>
+                  <article
+                    class='relative block w-full rounded-2xl border bg-background transition-all duration-300 ease-in-out px-5 py-5 hover:bg-muted hover:shadow-lg hover:border-primary/20 sm:py-6'
+                    style={pub.backgroundImage &&
+                      `--pub-highlight:color-mix(in srgb,var(--primary) 40%,hsl(var(--foreground)/var(--un-text-opacity,1)));
+                      --pub-highlight-bg:hsl(from var(--primary) h s l/15%)`}
+                  >
+                    {pub.backgroundImage && (
+                      <img
+                        alt={pub.title}
+                        src={pub.backgroundImage}
+                        class='cover-image absolute end-0 top-0 z-0 h-2/3 w-full rounded-2xl object-cover opacity-50 transition-opacity duration-300 group-hover:opacity-70 md:h-full md:w-3/5'
+                        loading='eager'
+                      />
+                    )}
+                    <div class='relative z-10 flex flex-col gap-2'>
+                      <div class='flex items-start justify-between gap-4'>
+                        <div class='flex-1'>
+                          <h3 class='text-lg font-medium leading-tight group-hover:text-primary transition-colors'>
+                            {pub.title}
+                          </h3>
+                          <div class='pub-authors text-sm text-muted-foreground mt-2'>
+                            <span set:html={pub.authors} />
+                          </div>
+                          <div class='pub-meta text-sm text-muted-foreground mt-2'>
+                            <span class='font-medium'>{pub.venue}</span>
+                            <span class='pub-sep mx-0.5'>•</span>
+                            <span>{pub.year}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {pub.links && pub.links.length > 0 && (
+                        <div class='pub-links mt-3 flex flex-wrap gap-3'>
+                          {pub.links.map((link) => (
+                            <a
+                              href={link.href}
+                              class='pub-link font-medium uppercase tracking-wider hover:text-primary transition-colors inline-flex items-center gap-1'
+                              target={link.href.startsWith('http') ? '_blank' : undefined}
+                              rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                            >
+                            <Icon
+                              name={link.label.toLowerCase().includes('code') ? 'github' : 'link'}
+                              size='0.75rem'
+                            />
+                              {link.label}
+                            </a>
+                          ))}
+                        </div>
+                      )}
+
+                      {pub.tags.length > 0 && (
+                        <div class='flex flex-wrap gap-2 mt-3'>
+                          {pub.tags.map((tag) => (
+                            <Button
+                              as='a'
+                              title={tag}
+                              href={`/tags/${encodeURIComponent(tagToSlug(tag))}`}
+                              variant='pill'
+                              class='text-xs'
+                            />
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </article>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </section>
+
+      {/* Sidebar - Tags */}
+      {allTags.length > 0 && (
+        <aside class='animate' id='sidebar'>
+          <h2 class='mb-4 flex items-center text-lg font-medium'>
+            <Icon name='tag-2' class='me-2' />
+            Tags
+          </h2>
+          <ul class='text-bgColor flex flex-wrap gap-2'>
+            {
+              // Only show top 15 tags in sidebar
+              allTags.slice(0, 15).map((tag) => (
+                <li>
+                  <Button title={tag.label} href={`/tags/${encodeURIComponent(tag.slug)}`} variant='pill' />
+                </li>
+              ))
+            }
+          </ul>
+          <span class='mt-4 block sm:text-end'>
+            <a aria-label='View all tags' href='/tags' data-astro-prefetch>
+              View all →
+            </a>
+          </span>
+          <div class='mt-6 pt-6 border-t border-border'>
+            <h3 class='mb-3 text-sm font-medium text-muted-foreground'>Years</h3>
+            <ul class='flex flex-col gap-2'>
+              {sortedYears.map((year) => (
+                <li>
+                  <a
+                    href={`#year-${year}`}
+                    class='text-sm hover:text-primary transition-colors flex items-center gap-2'
+                  >
+                    <Icon name='calendar' class='size-4' />
+                    {year}
+                    <span class='text-muted-foreground text-xs'>
+                      ({publicationsByYear[year].length})
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </aside>
+      )}
+    </div>
+  </main>
+</PageLayout>
+
+<style>
+  .publication-item {
+    --pub-highlight-final: var(
+      --pub-highlight,
+      hsl(var(--primary) / var(--un-text-opacity, 1))
+    );
+  }
+
+  .publication-item:hover {
+    & article,
+    & .tag-list a {
+      background-color: var(
+        --pub-highlight-bg,
+        hsl(var(--muted) / var(--un-bg-opacity, 1))
+      ) !important;
+    }
+    & article,
+    & .tag-list a:hover {
+      color: var(--pub-highlight-final) !important;
+    }
+    & .preview-redirect {
+      stroke: var(--pub-highlight-final) !important;
+    }
+  }
+
+  .cover-image {
+    mask-image: linear-gradient(
+      to right,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(0, 0, 0, 1) 100%
+    );
+  }
+
+  .pub-link {
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s ease;
+  }
+
+  .pub-link:hover {
+    border-bottom-color: hsl(var(--primary) / var(--un-text-opacity, 1));
+  }
+
+  .pub-authors strong {
+    color: hsl(var(--foreground) / var(--un-text-opacity, 1));
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    background: linear-gradient(
+      120deg,
+      hsl(var(--primary) / 0.12),
+      hsl(var(--primary) / 0.02)
+    );
+    border-bottom: 1px solid hsl(var(--primary) / 0.35);
+    padding: 0 0.15rem;
+    border-radius: 0.2rem;
+  }
+
+
+  @media (max-width: 768px) {
+    .cover-image {
+      mask-image: linear-gradient(
+        to top,
+        rgba(0, 0, 0, 0) 0%,
+        rgba(0, 0, 0, 1) 100%
+      );
+    }
+  }
+</style>

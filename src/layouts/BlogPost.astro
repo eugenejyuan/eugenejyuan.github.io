@@ -1,0 +1,72 @@
+---
+import type { MarkdownHeading } from 'astro'
+import type { CollectionEntry } from 'astro:content'
+
+// Plugin styles
+import 'katex/dist/katex.min.css'
+
+import { MediumZoom } from 'astro-pure/advanced'
+import { ArticleBottom, Copyright, Hero, TOC } from 'astro-pure/components/pages'
+import config from 'virtual:config'
+import PageLayout from '@/layouts/ContentLayout.astro'
+
+interface Props {
+  post: CollectionEntry<'blog'>
+  posts: CollectionEntry<'blog'>[]
+  headings: MarkdownHeading[]
+  remarkPluginFrontmatter: Record<string, unknown>
+}
+
+const {
+  post: { id, data },
+  posts,
+  headings,
+  remarkPluginFrontmatter
+} = Astro.props
+
+const {
+  description,
+  heroImage,
+  publishDate,
+  title,
+  updatedDate,
+  draft: isDraft,
+  comment: enableComment
+} = data
+
+const socialImage = heroImage
+  ? typeof heroImage.src === 'string'
+    ? heroImage.src
+    : heroImage.src.src
+  : config.socialCard
+const articleDate = updatedDate?.toISOString() ?? publishDate.toISOString()
+const primaryColor = data.heroImage?.color ?? '#B7C6D4'
+---
+
+<PageLayout
+  meta={{ articleDate, description, ogImage: socialImage, title }}
+  highlightColor={primaryColor}
+  back='/blog'
+>
+  {!!headings.length && <TOC {headings} slot='sidebar' />}
+
+  <Hero {data} {remarkPluginFrontmatter} slot='header'>
+    <Fragment slot='description'>
+      {/* Waline (comments/pageview) removed */}
+    </Fragment>
+  </Hero>
+
+  <slot />
+
+  <Fragment slot='bottom'>
+    {/* Copyright */}
+    <Copyright {data} />
+    {/* Article recommend */}
+    <ArticleBottom collections={posts} {id} class='mt-3 sm:mt-6' />
+    {/* Waline (comments) removed */}
+  </Fragment>
+
+  <slot name='bottom-sidebar' slot='bottom-sidebar' />
+</PageLayout>
+
+{config.integ.mediumZoom.enable && <MediumZoom />}

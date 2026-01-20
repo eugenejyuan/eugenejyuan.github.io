@@ -1,0 +1,56 @@
+/* Theme */
+:root {
+  /* Primary */
+  --primary: 214 36% 32%;
+  /* Foreground */
+  --foreground: 220 24% 14%;
+  --muted-foreground: 220 10% 36%;
+  /* Background */
+  --background: 36 40% 98%;
+  --muted: 34 18% 94%;
+  --card: 33 16% 90%;
+
+  /* Basic */
+  --border: 32 10% 86%;
+  --input: 32 12% 88%;
+  --ring: 214 36% 32%;
+  --radius: 0.35rem;
+}
+.dark {
+  /* Primary */
+  --primary: 210 45% 78%;
+  /* Foreground */
+  --foreground: 30 20% 94%;
+  --muted-foreground: 30 12% 72%;
+  /* Background */
+  --background: 220 20% 9%;
+  --muted: 220 14% 14%;
+  --card: 220 12% 18%;
+
+  /* Basic */
+  --border: 220 10% 24%;
+  --input: 220 10% 20%;
+  --ring: 210 45% 78%;
+}
+:root {
+  --un-default-border-color: hsl(var(--border) / 1);
+}
+html {
+  font-size: 16px;
+  text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  font-size: 16px;
+}
+html.dark {
+  color-scheme: dark;
+}
+
+/* Global */
+a {
+  transition: color 0.2s ease;
+  &:hover {
+    color: hsl(var(--primary) / var(--un-text-opacity, 1));
+  }
+}

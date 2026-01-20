@@ -1,0 +1,77 @@
+---
+import type { CollectionKey, InferEntrySchema } from 'astro:content'
+
+import config from 'virtual:config'
+
+import { cn, getFormattedDate } from '../../utils'
+import { Icon } from '../user'
+
+interface Props<T extends CollectionKey> {
+  data: InferEntrySchema<T>
+  class?: string
+}
+
+const {
+  data: { heroImage, title, publishDate },
+  class: className
+} = Astro.props
+
+const image = typeof heroImage?.src === 'string' ? heroImage?.src : (heroImage?.src?.src ?? '')
+
+const shares = {
+  weibo: {
+    link: `http://service.weibo.com/share/share.php?url=${Astro.url}&title=${title}&pic=${image}`
+  },
+  x: {
+    link: `https://x.com/intent/tweet?text='${title}'&url='${Astro.url}'&via='${config.author}'`
+  },
+  bluesky: {
+    link: `https://bsky.app/intent/compose?text=${title}%0A${Astro.url}`
+  }
+} as const
+---
+
+<div
+  class={cn(
+    'relative flex flex-col gap-y-2 rounded-xl border px-3 sm:px-4 py-2 sm:py-3',
+    className
+  )}
+>
+  <Icon class='absolute end-4 top-4 size-20 opacity-10' name='copyright' />
+
+  {/* title & link */}
+  <div class='flex flex-col'>
+    <div class='font-medium text-foreground'>{title}</div>
+    <div class='text-sm'>{Astro.url}</div>
+  </div>
+
+  {/* common info */}
+  <div class='flex flex-row flex-wrap justify-start gap-x-5 gap-y-1 sm:gap-x-8'>
+    <div class='flex gap-x-2 sm:flex-col'>
+      <span>Author</span>
+      <span class='text-sm text-foreground max-sm:place-self-center'>{config.author}</span>
+    </div>
+    {
+      publishDate && (
+        <div class='flex gap-x-2 sm:min-w-16 sm:flex-col'>
+          <span>Published at</span>
+          <span class='text-sm text-foreground max-sm:place-self-center'>
+            {getFormattedDate(publishDate, {
+              month: 'long'
+            })}
+          </span>
+        </div>
+      )
+    }
+    <div class='flex gap-x-2 sm:flex-col'>
+      <span>Copyright</span>
+      <a
+        class='text-sm text-foreground max-sm:place-self-center'
+        href='https://creativecommons.org/licenses/by/4.0/'
+        target='_blank'
+      >
+        CC BY-NC-SA 4.0
+      </a>
+    </div>
+  </div>
+</div>

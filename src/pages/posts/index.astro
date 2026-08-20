@@ -1,0 +1,133 @@
+---
+import Page from '../../layouts/Page.astro';
+import { allPosts, tagsOf, entryNumber } from '../../lib/posts';
+import { url } from '../../lib/url';
+import { langBadge, isoDate } from '../../lib/inline';
+import { archiveMeta } from '../../lib/archive';
+
+const posts = await allPosts();
+const tags = tagsOf(posts);
+const total = posts.length;
+---
+
+<Page
+  title="All posts"
+  eyebrow="WRITING"
+  tight
+  wide
+  description="Every post — math, engineering, and books, in 中文 and English.">
+  <div class="archive-meta" id="archive-meta">{archiveMeta(total, total)}</div>
+
+  <div class="filters">
+    <button type="button" class="filter" data-filter="tag" data-value="all" aria-pressed="true"
+      >· all</button
+    >
+    {
+      tags.map((t) => (
+        <button type="button" class="filter" data-filter="tag" data-value={t} aria-pressed="false">
+          · {t}
+        </button>
+      ))
+    }
+    <span class="filters__lang">
+      <button type="button" class="filter" data-filter="lang" data-value="all" aria-pressed="true"
+        >all</button
+      >
+      <button type="button" class="filter" data-filter="lang" data-value="EN" aria-pressed="false"
+        >EN</button
+      >
+      <button type="button" class="filter" data-filter="lang" data-value="中" aria-pressed="false"
+        >中</button
+      >
+    </span>
+  </div>
+
+  <div class="archive" id="archive">
+    {
+      posts.map((post, i) => {
+        const badge = langBadge(post.data.lang);
+        const tail = [post.data.read, `#${post.data.tag}`].filter(Boolean).join(' · ');
+        const href = url(`/posts/${post.id}`);
+        return (
+          <div class="entry" data-tag={post.data.tag} data-lang={badge}>
+            <span class="entry__n">[{entryNumber(i, total)}]</span>
+            <span class="entry__body">
+              <span class="entry__lang">[{badge}]</span>
+              <a class={`entry__link${post.data.lang === 'zh' ? ' cjk' : ''}`} href={href}>{post.data.title}</a>{'. '}
+              <span class="entry__date">{isoDate(post.data.date)}</span>
+              <span class="entry__tail">{` · ${tail}`}</span>
+            </span>
+          </div>
+        );
+      })
+    }
+    <div class="archive__empty" id="archive-empty" hidden>Nothing under this filter yet.</div>
+  </div>
+</Page>
+
+<script>
+  import { archiveMeta } from '../../lib/archive';
+
+  const archive = document.getElementById('archive');
+
+  if (archive) {
+    const entries = Array.from(archive.querySelectorAll<HTMLElement>('.entry'));
+    const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>('.filter'));
+    const empty = document.getElementById('archive-empty');
+    const meta = document.getElementById('archive-meta');
+    const total = entries.length;
+
+    const state: Record<string, string> = { tag: 'all', lang: 'all' };
+
+    function apply(pushUrl: boolean) {
+      let shown = 0;
+
+      for (const el of entries) {
+        const okTag = state.tag === 'all' || el.dataset.tag === state.tag;
+        const okLang = state.lang === 'all' || el.dataset.lang === state.lang;
+        const on = okTag && okLang;
+        el.hidden = !on;
+        if (on) shown++;
+      }
+
+      for (const b of buttons) {
+        const key = b.dataset.filter!;
+        b.setAttribute('aria-pressed', String(state[key] === b.dataset.value));
+      }
+
+      if (empty) empty.hidden = shown > 0;
+
+      if (meta) {
+        const filtered = state.tag !== 'all' || state.lang !== 'all';
+        meta.textContent = archiveMeta(shown, total, filtered);
+      }
+
+      if (pushUrl) {
+        const p = new URLSearchParams();
+        if (state.tag !== 'all') p.set('tag', state.tag);
+        if (state.lang !== 'all') p.set('lang', state.lang);
+        const qs = p.toString();
+        history.replaceState(null, '', qs ? `?${qs}` : window.location.pathname);
+      }
+    }
+
+    for (const b of buttons) {
+      b.addEventListener('click', () => {
+        state[b.dataset.filter!] = b.dataset.value!;
+        apply(true);
+      });
+    }
+
+    // Honour ?tag= / ?lang= on load — post pages link in this way.
+    const params = new URLSearchParams(window.location.search);
+    const has = (filter: string, value: string | null) =>
+      !!value && buttons.some((b) => b.dataset.filter === filter && b.dataset.value === value);
+
+    const qTag = params.get('tag');
+    const qLang = params.get('lang');
+    if (has('tag', qTag)) state.tag = qTag!;
+    if (has('lang', qLang)) state.lang = qLang!;
+
+    apply(false);
+  }
+</script>

@@ -1,140 +1,94 @@
-import config from '@/site-config'
-import { tagToSlug, type TagInfo } from 'astro-pure/utils'
+/**
+ * About page → "Recent Research Work". Newest first.
+ *
+ * The page renders only entries marked `featured`, as title + `desc` + links,
+ * with `coFirst` folded into the venue line — see src/pages/about.astro. The
+ * unfeatured entries and the author lists stay here for the record.
+ * `title` and `authors` accept inline HTML — `<strong>` marks the site author,
+ * `*` marks equal contribution.
+ */
+export type Publication = {
+  title: string;
+  authors: string;
+  /** Journal / conference / preprint server. */
+  venue: string;
+  year: string;
+  /** One-line summary, shown under the title. */
+  desc?: string;
+  /** Co-first author on this paper — noted on the venue line. */
+  coFirst?: boolean;
+  /** Shown on the About page. */
+  featured?: boolean;
+  links?: { label: string; url: string }[];
+};
 
-export interface Publication {
-  title: string
-  authors: string
-  venue: string
-  year: string
-  tags: string[]
-  links?: Array<{ label: string; href: string }>
-  backgroundImage?: string
-  equalContribution?: boolean
-}
-
-const author = config.author
+const me = '<strong>Jing Yuan</strong>';
 
 export const publications: Publication[] = [
   {
     title: 'A Generative Foundation Model for Cryo-EM Densities',
-    authors:
-      `Yilai Li*, <strong>${author}</strong>*, Yi Zhou*, Zhenghua Wang, Suyi Chen, Fengyu Yang, Haibin Ling, Shahar Z. Kovalsky, Xiaoqing Zheng, Quanquan Gu`,
-    venue: 'bioRxiv',
+    authors: `Yilai Li*, ${me}*, Yi Zhou*, Zhenghua Wang, Suyi Chen, Fengyu Yang, Haibin Ling, Shahar Z. Kovalsky, Xiaoqing Zheng, Quanquan Gu`,
+    venue: 'bioRxiv preprint',
     year: '2025',
-    tags: ['Cryo-EM', 'Foundation Model', 'Inverse Problem'],
+    desc: 'The extended CryoFM: a generative prior over cryo-EM densities, scaled up and reused across a wider set of downstream reconstruction tasks.',
     links: [
-      { label: 'Paper', href: 'https://doi.org/10.64898/2025.12.29.696802' },
-      { label: 'Homepage', href: 'https://bytedance-seed.github.io/cryofm/blog/cryofm2/' },
-      { label: 'Code', href: 'https://github.com/ByteDance-Seed/cryofm' }
+      { label: 'paper', url: 'https://doi.org/10.64898/2025.12.29.696802' },
+      { label: 'page', url: 'https://bytedance-seed.github.io/cryofm/blog/cryofm2/' },
+      { label: 'code', url: 'https://github.com/ByteDance-Seed/cryofm' },
     ],
-    backgroundImage: '/images/publications/cover-cryofm2.webp',
-    equalContribution: true
   },
   {
-    title: 'CryoFM: A Flow-based Foundation Model for Cryo-EM Densities',
-    authors: `Yi Zhou*, Yilai Li*, <strong>${author}</strong>*, Quanquan Gu`,
+    title: '<em>CryoFM</em>: a flow-based foundation model for cryo-EM densities',
+    authors: `Yi Zhou*, Yilai Li*, ${me}*, Quanquan Gu`,
     venue: 'ICLR',
     year: '2025',
-    tags: ['Cryo-EM', 'Foundation Model', 'Inverse Problem', 'Flow Matching'],
+    desc: 'The first foundation model for 3D cryo-EM density maps.',
+    coFirst: true,
+    featured: true,
     links: [
-      { label: 'OpenReview', href: 'https://openreview.net/forum?id=T4sMzjy7fO' },
-      { label: 'Homepage', href: 'https://bytedance-seed.github.io/cryofm/blog/cryofm1/' },
-      { label: 'Code', href: 'https://github.com/ByteDance-Seed/cryofm' }
+      { label: 'openreview', url: 'https://openreview.net/forum?id=T4sMzjy7fO' },
+      { label: 'page', url: 'https://bytedance-seed.github.io/cryofm/blog/cryofm1/' },
+      { label: 'code', url: 'https://github.com/ByteDance-Seed/cryofm' },
     ],
-    backgroundImage: '/images/publications/cover-cryofm1.webp',
-    equalContribution: true
   },
   {
-    title: 'CryoSTAR: leveraging structural priors and constraints for cryo-EM heterogeneous reconstruction',
-    authors: `Yilai Li*, Yi Zhou*, <strong>${author}</strong>*, Fei Ye, Quanquan Gu`,
+    title:
+      '<em>CryoSTAR</em>: leveraging structural priors and constraints for cryo-EM heterogeneous reconstruction',
+    authors: `Yilai Li*, Yi Zhou*, ${me}*, Fei Ye, Quanquan Gu`,
     venue: 'Nature Methods',
     year: '2024',
-    tags: ['Cryo-EM', 'Heterogeneity', 'Elastic Network'],
+    desc: 'The first successful use of structural priors for heterogeneous reconstruction on real cryo-EM data.',
+    coFirst: true,
+    featured: true,
     links: [
-      { label: 'Paper', href: 'https://www.nature.com/articles/s41592-024-02486-1' },
-      { label: 'Homepage', href: 'https://bytedance-seed.github.io/cryofm/blog/cryostar/' },
-      { label: 'Code', href: 'https://github.com/bytedance/cryostar' }
+      { label: 'paper', url: 'https://www.nature.com/articles/s41592-024-02486-1' },
+      { label: 'page', url: 'https://bytedance-seed.github.io/cryofm/blog/cryostar/' },
+      { label: 'code', url: 'https://github.com/bytedance/cryostar' },
     ],
-    backgroundImage: '/images/publications/cover-cryostar.webp',
-    equalContribution: true
   },
   {
     title: '3D Layout encoding network for spatial-aware 3D saliency modelling',
-    authors: `<strong>${author}</strong>, Yang Cao, Yu Kang, Weiguo Song, Zhongcheng Yin, Rui Ba, Qing Ma`,
+    authors: `${me}, Yang Cao, Yu Kang, Weiguo Song, Zhongcheng Yin, Rui Ba, Qing Ma`,
     venue: 'IET Computer Vision',
     year: '2019',
-    tags: ['Saliency', 'RGB Depth Fusion', 'CNN'],
+    desc: 'Encoding scene layout into a saliency network, so that where a viewer looks is predicted from 3D spatial structure rather than 2D appearance alone.',
     links: [
-      { label: 'Paper', href: 'https://ietresearch.onlinelibrary.wiley.com/doi/full/10.1049/iet-cvi.2018.5591' }
+      {
+        label: 'paper',
+        url: 'https://ietresearch.onlinelibrary.wiley.com/doi/full/10.1049/iet-cvi.2018.5591',
+      },
     ],
-    backgroundImage: '/images/publications/cover-iet2019.webp',
   },
   {
-    title: 'SmokeNet: Satellite Smoke Scene Detection Using Convolutional Neural Network with Spatial and Channel-Wise Attention',
-    authors: `Rui Ba, Chen Chen, <strong>${author}</strong>, Weiguo Song, Siuming Lo`,
+    title:
+      '<em>SmokeNet</em>: Satellite Smoke Scene Detection Using Convolutional Neural Network with Spatial and Channel-Wise Attention',
+    authors: `Rui Ba, Chen Chen, ${me}, Weiguo Song, Siuming Lo`,
     venue: 'Remote Sensing',
     year: '2019',
-    tags: ['Remote Sensing', 'Attention', 'CNN'],
+    desc: 'Smoke-scene detection in satellite imagery, using spatial and channel-wise attention to separate smoke from visually similar cloud and haze.',
     links: [
-      { label: 'Paper', href: 'https://doi.org/10.3390/rs11141702' },
-      { label: 'Homepage', href: 'https://complex.ustc.edu.cn/2019/0802/c18202a389656/page.htm' }
+      { label: 'paper', url: 'https://doi.org/10.3390/rs11141702' },
+      { label: 'page', url: 'https://complex.ustc.edu.cn/2019/0802/c18202a389656/page.htm' },
     ],
-    backgroundImage: '/images/publications/cover-rs2019.webp',
-  }
-]
-
-export function getPublicationTags(): string[] {
-  return Array.from(new Set(publications.flatMap((pub) => pub.tags))).sort()
-}
-
-export function getPublicationTagsWithCount(): [string, number][] {
-  const tagCounts = publications.reduce((acc, pub) => {
-    pub.tags.forEach((tag) => acc.set(tag, (acc.get(tag) || 0) + 1))
-    return acc
-  }, new Map<string, number>())
-
-  return [...tagCounts.entries()].sort((a, b) => b[1] - a[1])
-}
-
-export function getPublicationsByTag(tag: string): Publication[] {
-  return publications.filter((pub) => pub.tags.includes(tag))
-}
-
-export function getPublicationTagsBySlug(): TagInfo[] {
-  const map = new Map<string, string>()
-  for (const pub of publications) {
-    for (const raw of pub.tags) {
-      const label = raw.trim()
-      if (!label) continue
-      const slug = tagToSlug(label)
-      if (!slug) continue
-      if (!map.has(slug)) map.set(slug, label)
-    }
-  }
-  return [...map.entries()].map(([slug, label]) => ({ slug, label })).sort((a, b) =>
-    a.label.localeCompare(b.label)
-  )
-}
-
-export function getPublicationTagsWithCountBySlug(): Array<TagInfo & { count: number }> {
-  const counts = new Map<string, { label: string; count: number }>()
-  for (const pub of publications) {
-    for (const raw of pub.tags) {
-      const label = raw.trim()
-      if (!label) continue
-      const slug = tagToSlug(label)
-      if (!slug) continue
-      const prev = counts.get(slug)
-      if (prev) prev.count += 1
-      else counts.set(slug, { label, count: 1 })
-    }
-  }
-  return [...counts.entries()]
-    .map(([slug, v]) => ({ slug, label: v.label, count: v.count }))
-    .sort((a, b) => b.count - a.count)
-}
-
-export function getPublicationsByTagSlug(tagSlug: string): Publication[] {
-  if (!tagSlug) return []
-  return publications.filter((pub) => pub.tags.some((t) => tagToSlug(t) === tagSlug))
-}
+  },
+];

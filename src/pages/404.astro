@@ -1,18 +1,19 @@
 ---
-import { Button } from 'astro-pure/user'
-import PageLayout from '@/layouts/BaseLayout.astro'
-
-const meta = {
-  description: 'Not found',
-  title: '404'
-}
+import Base from '../layouts/Base.astro';
+import { url } from '../lib/url';
 ---
 
-<PageLayout {meta}>
-  <div class='px-4 py-10 text-center sm:px-6 lg:px-8'>
-    <h1 class='block text-7xl font-bold sm:text-9xl'>404</h1>
-    <p class='mt-3 text-muted-foreground'>Oops, something went wrong.</p>
-    <p class='text-lg'>Sorry, we couldn't find your page.</p>
-    <Button title='Back to home' href='/' variant='ahead' class='mt-5' />
+<Base title="Not found" description="That note doesn't exist." noindex>
+  <div class="notfound">
+    <div class="notfound__code">404</div>
+    <h1 class="title-page" style="margin:22px 0 10px">Page not found</h1>
+    <p class="muted" style="font-style:italic;margin:0 0 26px">
+      That note doesn't exist — or it was renamed while being revised in public.
+    </p>
+    <p class="mono-link">
+      <a href={url('/')}>← working notes</a>
+      &nbsp;·&nbsp;
+      <a href={url('/posts')}>all posts</a>
+    </p>
   </div>
-</PageLayout>
+</Base>

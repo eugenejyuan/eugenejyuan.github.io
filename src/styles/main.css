@@ -1,0 +1,524 @@
+/* ============================================================
+   Working Notes — design system
+   Palette and type are the "v2" canvas values, unchanged.
+   Only the shell was rescaled for the desktop web: the canvas
+   was drawn on a 560px artboard, which reads as a phone column
+   on a real monitor, so the column is 760px (920px for the
+   archive index), with spacing scaled to match.
+   ============================================================ */
+
+:root {
+  /* ── Colour ─────────────────────────────────────────────── */
+  --paper:       #fbfaf6;
+  --ink:         #2a261f;
+  --ink-strong:  #1a1814;
+  --ink-soft:    #332e26;
+  --muted:       #7e7a70;
+  --icon:        #5a564c;
+  --rule:        #d8d3c7;
+  --rule-light:  #ece8dd;
+  --link:        #3a6ea8;
+  --mark:        #fff3a8;
+  --code-bg:     #f1eddf;
+
+  /* ── Type ───────────────────────────────────────────────── */
+  --serif: 'Source Serif 4', 'LXGW WenKai Lite', Georgia, serif;
+  --mono:  'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* ── Layout ─────────────────────────────────────────────────
+     --measure is the column width. It is redeclared on .page so
+     a page can widen itself (see .page--wide); both the top bar
+     and the content well read it, so they always stay aligned. */
+  --measure: 760px;
+  --gutter: 32px;
+}
+
+/* ── Reset & base ─────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+/* `display` on a component would otherwise beat the hidden attribute's
+   UA default — the archive rows and the search dialog rely on this. */
+[hidden] { display: none !important; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif);
+  /* 17px, not 16: Source Serif 4's x-height is 0.452em against
+     Newsreader's 0.512em, so the same nominal size reads a step smaller.
+     17 × 0.452 lands on 7.7px — the same optical size as the 16px Georgia
+     that ruanyifeng.com sets its body in.                               */
+  font-size: 17px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+
+  /* THE italic fix. No Chinese typeface has an italic — Chinese has no
+     such concept — so every `font-style: italic` in this file used to make
+     the browser shear the Han glyphs instead. Turning off style synthesis
+     (style only; weight synthesis is untouched) means italic now applies
+     to the Latin run and leaves the Chinese upright inside the same line.
+     Source Serif 4 has a real italic, so nothing is lost on that side.  */
+  font-synthesis-style: none;
+}
+
+/* 楷体's strokes are lighter and its counters more open than 思源宋's, so
+   the Chinese pages come down a step and open their leading to compensate. */
+body:lang(zh) { font-size: 16px; line-height: 1.9; }
+
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; text-underline-offset: 3px; }
+::selection { background: var(--mark); }
+
+img { max-width: 100%; height: auto; }
+
+:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ── Shell ────────────────────────────────────────────────── */
+.page { min-height: 100vh; }
+
+/* An index reads as a table, not an essay — it gets a wider well. */
+.page--wide { --measure: 920px; }
+
+.topbar, .wrap {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding-inline: var(--gutter);
+}
+
+.topbar { position: relative; height: 0; }
+.wrap   { padding-block: 84px 108px; }
+
+.skip-link {
+  position: absolute; left: -9999px; top: 0;
+  background: var(--paper); color: var(--ink-strong);
+  font-family: var(--mono); font-size: 12px;
+  padding: 8px 14px; z-index: 100;
+}
+.skip-link:focus { left: 8px; top: 8px; }
+
+/* ── Search affordance (aligned to the column's right edge) ── */
+.search-trigger {
+  position: absolute; top: 24px; right: var(--gutter);
+  font-family: var(--mono); font-size: 10.5px;
+  color: var(--muted); letter-spacing: 0.06em;
+  background: none; border: 0; padding: 4px; cursor: pointer;
+  line-height: 1.4;
+}
+.search-trigger:hover { color: var(--ink-strong); text-decoration: underline; text-underline-offset: 3px; }
+
+/* ── Metadata primitives ──────────────────────────────────── */
+.eyebrow {
+  font-family: var(--mono); font-size: 10.5px;
+  color: var(--muted); letter-spacing: 0.12em;
+}
+.eyebrow a { color: var(--muted); }
+.eyebrow--center { text-align: center; }
+
+.label {
+  font-family: var(--mono); font-size: 11px;
+  color: var(--muted); letter-spacing: 0.2em;
+  text-align: center; margin-bottom: 10px;
+}
+
+.muted     { color: var(--muted); }
+.mono-note { font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: 0.03em; }
+.mono-link { font-family: var(--mono); font-size: 12px; }
+
+/* ── Headings ─────────────────────────────────────────────── */
+h1, h2, h3 { color: var(--ink-strong); font-weight: 500; }
+
+.title-home {
+  margin: 30px 0 10px; text-align: center;
+  font-size: 30px; font-weight: 500; line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+.title-page  { margin: 22px 0 30px; font-size: 24px; font-weight: 500; }
+.title-page--tight { margin-bottom: 6px; }
+
+h2 {
+  margin: 42px 0 14px;
+  font-size: 17px; font-weight: 600;
+}
+h3 { margin: 28px 0 10px; font-size: 15.5px; font-weight: 600; }
+
+/* ── Home masthead ────────────────────────────────────────── */
+.byline  { text-align: center; font-size: 16px; color: var(--ink-strong); }
+.subline {
+  text-align: center; font-size: 13px; color: var(--muted);
+  font-style: italic; margin: 8px 0 38px;
+}
+.subline a { color: var(--muted); }
+
+.abstract {
+  margin: 0 0 34px; text-align: justify;
+  color: var(--ink-soft); font-size: 15.5px;
+}
+/* The interests note (site.config → `interests`) is one string rendered on
+   both pages; only the treatment differs — mono under the home abstract,
+   italic under "Research taste" on About. */
+.interests { margin: -22px 0 34px; }
+.research-interests {
+  margin: 0; font-size: 13.5px; font-style: italic; color: var(--muted);
+}
+
+hr, .rule {
+  border: none; border-top: 1px solid var(--rule);
+  margin: 0 0 30px;
+}
+.rule--section { margin: 42px 0 28px; }
+
+/* ── Recent-post list (home) ──────────────────────────────── */
+.stack      { display: flex; flex-direction: column; gap: 14px; }
+.stack--sm  { gap: 10px; }
+.stack--xs  { gap: 8px; }
+
+.post-row { display: flex; gap: 16px; align-items: baseline; }
+.post-row__date {
+  flex: none; width: 94px;
+  font-family: var(--mono); font-size: 12px; color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.post-row__lang { flex: none; font-size: 11px; color: var(--muted); }
+.post-row__title { color: var(--ink); font-size: 15.5px; line-height: 1.5; }
+/* The old 500 bump patched 思源宋 looking thin beside Newsreader. WenKai
+   has no 500, so it only rounded to 400 or faked a bolder face. */
+.cjk { font-weight: 400; }
+
+.news-row { font-size: 15px; }
+.news-row__date {
+  font-family: var(--mono); font-size: 12px; color: var(--muted);
+  margin-right: 12px; font-variant-numeric: tabular-nums;
+}
+
+/* ── Archive (all posts) ──────────────────────────────────── */
+.archive-meta { font-size: 13.5px; color: var(--muted); font-style: italic; margin-bottom: 28px; }
+
+.filters {
+  display: flex; flex-wrap: wrap; gap: 16px;
+  font-family: var(--mono); font-size: 12px;
+  margin-bottom: 24px; align-items: baseline;
+}
+.filters__lang { margin-left: auto; display: flex; gap: 14px; }
+.filter {
+  background: none; border: 0; padding: 0; cursor: pointer;
+  font: inherit; color: var(--muted);
+}
+.filter:hover { text-decoration: underline; text-underline-offset: 3px; }
+.filter[aria-pressed="true"] { color: var(--ink-strong); }
+
+.archive { border-top: 1px solid var(--rule); }
+.entry {
+  display: flex; gap: 14px; align-items: baseline;
+  padding: 15px 0; border-bottom: 1px solid var(--rule-light);
+}
+.entry__n {
+  flex: none; min-width: 30px;
+  font-family: var(--mono); font-size: 12px; color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.entry__body { flex: 1; font-size: 15.5px; line-height: 1.6; }
+.entry__lang { color: var(--muted); font-size: 11px; margin-right: 8px; }
+.entry__link { color: var(--ink); font-style: italic; }
+.entry__date { color: var(--muted); font-family: var(--mono); font-size: 12px; }
+.entry__tail { color: var(--muted); }
+.archive__empty {
+  padding: 26px 0; color: var(--muted); font-style: italic;
+  border-bottom: 1px solid var(--rule-light);
+}
+
+/* ── About ────────────────────────────────────────────────── */
+.lede-row { display: flex; gap: 36px; align-items: flex-start; }
+.lede { flex: 1; min-width: 0; }
+.portrait {
+  flex: none; width: 132px; height: 132px;
+  border-radius: 50%; object-fit: cover;
+  margin-top: 4px; background: var(--code-bg);
+}
+
+/* Same optical size as the home page's ABSTRACT — 15.5px, not the 17px body. */
+.lede p {
+  margin: 0 0 16px; text-align: justify;
+  color: var(--ink-soft); font-size: 15.5px;
+}
+.lede p:last-child { margin-bottom: 0; }
+
+.work { display: flex; flex-direction: column; gap: 20px; font-size: 15px; color: var(--ink-soft); }
+.work__head {
+  display: flex; gap: 16px; align-items: baseline; justify-content: space-between;
+}
+.work__title { font-weight: 500; color: var(--ink-strong); }
+.work__links {
+  flex: none; display: flex; gap: 12px;
+  font-family: var(--mono); font-size: 11px;
+}
+.work__desc { margin-top: 3px; text-align: justify; }
+
+.kv { display: flex; gap: 16px; align-items: baseline; font-size: 15px; }
+.kv__key {
+  flex: none; width: 82px;
+  font-family: var(--mono); font-size: 11.5px; color: var(--muted);
+}
+
+/* ── Social row ───────────────────────────────────────────── */
+.social {
+  display: flex; gap: 26px; align-items: center;
+  justify-content: center; flex-wrap: wrap;
+}
+.social a {
+  color: var(--icon); display: flex; align-items: center; gap: 8px;
+  font-family: var(--mono); font-size: 11px;
+}
+.social a:hover { color: var(--ink-strong); }
+.social svg { flex: none; }
+/* No href until the script decodes the address, so `a` gets no pointer of its own. */
+.social__email { cursor: pointer; }
+.social__email:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+/* ── Post ─────────────────────────────────────────────────── */
+.post-title {
+  margin: 28px 0 12px; text-align: center;
+  font-size: clamp(24px, 2.6vw, 30px); font-weight: 500;
+  line-height: 1.3; letter-spacing: -0.005em;
+  text-wrap: balance;
+}
+.post-author { text-align: center; font-size: 15px; color: var(--ink-strong); }
+.post-meta {
+  text-align: center; font-size: 13px; color: var(--muted);
+  font-style: italic; margin: 6px 0 34px;
+}
+.post-meta a { color: var(--muted); }
+.post-abstract {
+  margin: 0 0 32px; text-align: justify; font-style: italic;
+  color: var(--ink-soft); font-size: 15px;
+}
+
+.prose > *:first-child { margin-top: 0; }
+.prose p  { margin: 0 0 18px; text-align: justify; }
+.prose h2:first-of-type { margin-top: 0; }
+.prose ul, .prose ol { margin: 0 0 18px; padding-left: 26px; }
+.prose li { margin: 5px 0; }
+.prose em { font-style: italic; }
+.prose strong { font-weight: 600; color: var(--ink-strong); }
+
+.prose blockquote {
+  margin: 24px 0; padding: 2px 0 2px 22px;
+  border-left: 2px solid var(--rule);
+  color: var(--ink-soft); font-style: italic;
+}
+.prose blockquote p:last-child { margin-bottom: 0; }
+
+.prose hr { margin: 34px 0; }
+
+/* Inline + block code */
+.prose code {
+  font-family: var(--mono); font-size: 0.86em;
+  background: var(--code-bg); padding: 1px 5px; border-radius: 3px;
+}
+.prose pre {
+  margin: 22px 0;
+  background: var(--code-bg);
+  border-left: 2px solid var(--muted);
+  padding: 18px 22px;
+  overflow-x: auto;
+  font-family: var(--mono); font-size: 12.5px; line-height: 1.7;
+  color: var(--ink-soft);
+}
+.prose pre code {
+  background: none; padding: 0; font-size: inherit; border-radius: 0;
+}
+
+/* Tables */
+.prose table {
+  width: 100%; border-collapse: collapse;
+  margin: 24px 0; font-size: 14.5px;
+}
+.prose th, .prose td {
+  text-align: left; padding: 9px 12px 9px 0;
+  border-bottom: 1px solid var(--rule-light);
+}
+.prose th {
+  font-family: var(--mono); font-size: 11.5px; font-weight: 500;
+  color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase;
+}
+
+/* Figures */
+.prose figure { margin: 28px 0; }
+.prose figcaption {
+  margin-top: 10px; font-size: 13px; color: var(--muted);
+  font-style: italic; text-align: center;
+}
+
+/* ── KaTeX ────────────────────────────────────────────────────
+   Body math is rendered at build time by remark-math + rehype-katex.
+   These rules match the spacing and weight of the design's hand-set
+   equations; KaTeX keeps its own (Computer Modern) glyphs.           */
+.katex { font-size: 1.06em; }
+.katex-display {
+  margin: 28px 0;
+  padding: 2px 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+.katex-display > .katex { font-size: 1.14em; }
+.prose .katex-display { text-align: center; }
+
+/* References */
+.refs-head {
+  margin-top: 36px;
+  font-family: var(--mono); font-size: 11px; color: var(--muted);
+  white-space: nowrap; overflow: hidden;
+}
+.refs {
+  font-size: 13.5px; color: var(--ink-soft);
+  margin-top: 10px; line-height: 1.8;
+}
+.refs ol { margin: 0; padding-left: 0; list-style: none; counter-reset: ref; }
+.refs li { counter-increment: ref; }
+.refs li::before {
+  content: "[" counter(ref) "] "; color: var(--muted);
+  font-family: var(--mono); font-size: 12px;
+}
+
+/* Prev / next */
+.post-nav {
+  display: flex; gap: 20px;
+  font-family: var(--mono); font-size: 12px; color: var(--muted);
+}
+.post-nav a { color: var(--muted); }
+.post-nav__next { margin-left: auto; text-align: right; }
+
+/* ── Search modal ─────────────────────────────────────────── */
+.search-backdrop {
+  position: fixed; inset: 0; z-index: 90;
+  background: rgba(42, 38, 31, 0.28);
+  backdrop-filter: blur(2px);
+  display: flex; justify-content: center; align-items: flex-start;
+  padding: 12vh 20px 20px;
+}
+
+.search-panel {
+  width: 100%; max-width: 620px;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  box-shadow: 0 18px 48px rgba(42, 38, 31, 0.18);
+  display: flex; flex-direction: column;
+  max-height: 70vh;
+}
+.search-input {
+  font-family: var(--serif); font-size: 16px; color: var(--ink);
+  background: none; border: 0; border-bottom: 1px solid var(--rule);
+  padding: 18px 22px; width: 100%;
+}
+.search-input:focus { outline: none; }
+.search-input::placeholder { color: var(--muted); }
+
+.search-results { overflow-y: auto; margin: 0; padding: 0; list-style: none; }
+.search-results li { border-bottom: 1px solid var(--rule-light); }
+.search-results li:last-child { border-bottom: 0; }
+.search-results a {
+  display: block; padding: 12px 22px; color: var(--ink);
+}
+.search-results a:hover,
+.search-results .is-active a {
+  background: var(--code-bg); text-decoration: none;
+}
+.search-results mark { background: var(--mark); color: inherit; }
+.search-result__title { font-size: 15px; line-height: 1.45; }
+.search-result__meta {
+  font-family: var(--mono); font-size: 11px; color: var(--muted);
+  margin-top: 3px;
+}
+.search-empty {
+  padding: 18px 22px; color: var(--muted);
+  font-style: italic; font-size: 14px;
+}
+.search-hint {
+  border-top: 1px solid var(--rule-light);
+  padding: 10px 22px;
+  font-family: var(--mono); font-size: 10.5px; color: var(--muted);
+  display: flex; gap: 16px;
+}
+
+/* ── 404 ──────────────────────────────────────────────────── */
+.notfound { text-align: center; padding-top: 48px; }
+.notfound__code {
+  font-family: var(--mono); font-size: 48px; color: var(--rule);
+  letter-spacing: 0.08em; line-height: 1;
+}
+
+/* ── Responsive ───────────────────────────────────────────────
+   The well shrinks with the viewport on its own; these rules
+   handle the places where the canvas's inline rows stop fitting. */
+@media (max-width: 900px) {
+  :root { --gutter: 28px; }
+  .wrap { padding-block: 64px 88px; }
+  .search-trigger { top: 20px; }
+}
+
+@media (max-width: 620px) {
+  :root { --gutter: 20px; }
+  .wrap { padding-block: 56px 72px; }
+  .search-trigger { top: 16px; }
+
+  .title-page { margin: 18px 0 24px; }
+
+  .post-row { flex-wrap: wrap; gap: 6px 12px; }
+  .post-row__date { width: auto; }
+  .post-row__title { flex-basis: 100%; }
+
+  .work__head { flex-direction: column; gap: 5px; }
+  .work__links { margin-top: 3px; }
+
+  .lede-row { flex-direction: column-reverse; gap: 22px; align-items: center; }
+
+  /* Language filters get their own row, so they don't read as more tags. */
+  .filters { gap: 12px 16px; }
+  .filters__lang { margin-left: 0; flex-basis: 100%; }
+
+  /* Justification needs room; below this it opens rivers. */
+  .prose p, .abstract, .post-abstract, .lede p, .work__desc { text-align: left; }
+
+  .social { gap: 18px; }
+}
+
+@media (max-width: 400px) {
+  .kv { flex-wrap: wrap; gap: 2px 14px; }
+  .kv__key { width: auto; }
+}
+
+/* ── Motion ───────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+
+/* ── Print ────────────────────────────────────────────────── */
+@media print {
+  .search-trigger, .search-backdrop, .post-nav, .skip-link { display: none !important; }
+  body { background: #fff; font-size: 11pt; }
+  .wrap { max-width: none; padding: 0; }
+  a { color: inherit; text-decoration: none; }
+  .prose pre { border-left: 1px solid #999; background: #f5f5f5; }
+}
+
+/* ── Site footer ──────────────────────────────────────────────
+   The licence line, on every page. Sized and coloured like the
+   other mono furniture (.eyebrow, .search-hint) so it recedes:
+   present for anyone who looks for terms, invisible to anyone
+   reading. Links stay --muted rather than --link — a blue pair
+   at the foot of every page would pull the eye down the column. */
+.site-footer {
+  margin-top: 76px;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule-light);
+  font-family: var(--mono); font-size: 10.5px;
+  color: var(--muted); letter-spacing: 0.03em; line-height: 1.9;
+}
+.site-footer a { color: var(--muted); }

@@ -1,63 +1,34 @@
-import { glob } from 'astro/loaders'
-import { defineCollection, z } from 'astro:content'
+import { defineCollection } from 'astro:content';
+/* Astro 6 moved to Zod 4 and deprecated re-exporting `z` from
+   astro:content. `astro/zod` is the same instance Astro validates with,
+   so schemas can never drift from a separately-installed zod. */
+import { z } from 'astro/zod';
+import { glob } from 'astro/loaders';
 
-function tagToSlug(input: string): string {
-  return input
-    .trim()
-    .toLowerCase()
-    .normalize('NFKD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/['"]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '')
-}
+const posts = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/posts' }),
+  schema: z.object({
+    /** Post title. Shown centred on the post page and in every listing. */
+    title: z.string(),
+    /** Publication date — drives ordering, the breadcrumb, and the feed. */
+    date: z.coerce.date(),
+    /** Drives the [EN] / [中] badge, the CJK weight, and <html lang>. */
+    lang: z.enum(['en', 'zh']).default('en'),
+    /** Single word; becomes a filter on /posts. */
+    tag: z.string(),
+    /** e.g. "12 min". Set by hand — word counting is unreliable for CJK. */
+    read: z.string().optional(),
+    /** Optional "revised YYYY-MM-DD" note under the title. */
+    revised: z.coerce.date().optional(),
+    /** Loads KaTeX styling for this post. Body math works either way. */
+    math: z.boolean().default(false),
+    /** Italic ABSTRACT block. Supports *em*, `code`, and $math$. */
+    abstract: z.string().optional(),
+    /** Numbered reference list rendered after the body. */
+    refs: z.array(z.string()).default([]),
+    /** Hidden from listings, feed, sitemap and search. */
+    draft: z.boolean().default(false),
+  }),
+});
 
-function normalizeTagsForContent(array: string[]) {
-  if (!array.length) return array
-  const seen = new Set<string>()
-  const out: string[] = []
-  for (const raw of array) {
-    const label = raw.trim()
-    if (!label) continue
-    const slug = tagToSlug(label)
-    if (!slug || seen.has(slug)) continue
-    seen.add(slug)
-    out.push(label)
-  }
-  return out
-}
-
-// Define blog collection
-const blog = defineCollection({
-  // Load Markdown and MDX files in the `src/content/blog/` directory.
-  loader: glob({ base: './src/content/blog', pattern: '**/*.{md,mdx}' }),
-  // Required
-  schema: ({ image }) =>
-    z.object({
-      // Required
-      title: z.string().max(60),
-      description: z.string().max(160),
-      publishDate: z.coerce.date(),
-      // Optional
-      updatedDate: z.coerce.date().optional(),
-      heroImage: z
-        .object({
-          src: image(),
-          alt: z.string().optional(),
-          inferSize: z.boolean().optional(),
-          width: z.number().optional(),
-          height: z.number().optional(),
-
-          color: z.string().optional()
-        })
-        .optional(),
-      tags: z.array(z.string()).default([]).transform(normalizeTagsForContent),
-      language: z.string().optional(),
-      draft: z.boolean().default(false),
-      // Special fields
-      comment: z.boolean().default(true)
-    })
-})
-
-export const collections = { blog }
+export const collections = { posts };

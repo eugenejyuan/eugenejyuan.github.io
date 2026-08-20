@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#fbfaf6"/>
+
+  <g fill="#ece8dd">
+    <rect x="0" y="96"  width="1200" height="2"/>
+    <rect x="0" y="532" width="1200" height="2"/>
+  </g>
+
+  <text x="100" y="70" font-family="Menlo, monospace" font-size="20"
+        letter-spacing="4.4" fill="#7e7a70">WORKING NOTES</text>
+
+  <!-- highlighter swipe, behind the second word: the favicon's mark, doing
+       the thing a mark does on a page of notes -->
+  <rect x="463" y="228" width="245" height="66" fill="#fff3a8"/>
+
+  <text x="100" y="290" font-family="Georgia, serif" font-size="92"
+        letter-spacing="-1" fill="#1a1814">Working Notes</text>
+
+  <text x="100" y="352" font-family="Georgia, serif" font-size="34"
+        fill="#2a261f">by Jing Yuan</text>
+
+  <text x="100" y="428" font-family="Georgia, serif" font-style="italic"
+        font-size="29" fill="#332e26">A slow-burning notebook — math, engineering, books.</text>
+  <text x="100" y="470" font-family="Georgia, serif" font-style="italic"
+        font-size="29" fill="#332e26">Drafts in 中文 / English, revised in public.</text>
+
+  <text x="100" y="588" font-family="Menlo, monospace" font-size="20"
+        letter-spacing="2.4" fill="#7e7a70">eugenejyuan.github.io</text>
+</svg>

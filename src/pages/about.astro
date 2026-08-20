@@ -1,0 +1,101 @@
+---
+import Page from '../layouts/Page.astro';
+import SocialRow from '../components/SocialRow.astro';
+import { site } from '../site.config';
+import { publications } from '../data/publications';
+import { currently } from '../data/currently';
+import { url } from '../lib/url';
+
+/** The About page shows the featured papers only; the rest stay in the data file. */
+const recent = publications.filter((p) => p.featured);
+---
+
+<Page
+  title="About"
+  eyebrow="ABOUT"
+  description="Jing Yuan — most recently a Research Scientist at ByteDance Seed (AI for Science).">
+  <div class="lede-row">
+    <div class="lede">
+      <p>
+        I'm {site.author}{site.authorCn && <> ({site.authorCn})</>}, based in Shanghai. I was most
+        recently a Research Scientist at <a href="https://seed.bytedance.com/en/">ByteDance Seed</a>,
+        on the AI for Science team led by <a href="https://web.cs.ucla.edu/~qgu/">Prof. Quanquan Gu</a
+        >, where my work centered on generative modeling and cryo-electron microscopy.
+      </p>
+      <p>
+        Before that, I worked on applied machine learning in <a href="https://www.bytedance.com/en/"
+          >ByteDance</a
+        >'s Education team, and on computer vision and medical imaging at <a
+          href="https://www.sensetime.com/en">SenseTime</a
+        >. I earned my M.S. from the <a href="https://en.ustc.edu.cn/"
+          >University of Science and Technology of China</a
+        > in 2019, working on image saliency detection.
+      </p>
+      <p>
+        These days, I'm spending some time on mathematics, mostly as a way to step outside my usual
+        toolkit and look at familiar problems from a different angle. I'm also using the time to
+        read, experiment, and think more freely about intelligence and learning.
+      </p>
+    </div>
+    {
+      site.portrait && (
+        <img class="portrait" src={url(site.portrait)} alt={site.author} width="132" height="132" />
+      )
+    }
+  </div>
+
+  <h2>Research Taste</h2>
+  <p class="abstract" style="margin:0 0 14px">
+    I have a bias toward taking things apart before adding anything new: what is actually broken,
+    what is fundamental to the problem, what is just baggage from the current approach and what is
+    the smallest change that would make a real difference? I like experiments where an idea has
+    somewhere to die — small, controlled settings where you can tell why something worked, or why it
+    didn't. If the signal survives there, then scale it. If it only appears after enough knobs,
+    compute, and storytelling, I'm usually less interested. The best result, to me, is one that
+    changes how I think the system should be built, not just the number at the end of the table.
+  </p>
+  <p class="research-interests">{site.interests}</p>
+
+  <h2>Recent Research Work</h2>
+  <div class="work">
+    {
+      recent.map((p) => (
+        <div>
+          <div class="work__head">
+            <div class="work__title" set:html={p.title} />
+            {p.links && (
+              <div class="work__links">
+                {p.links.map((l) => (
+                  <a href={l.url}>{l.label}</a>
+                ))}
+              </div>
+            )}
+          </div>
+          {p.desc && <div class="work__desc">{p.desc}</div>}
+          <div class="mono-note" style="margin-top:4px">
+            {p.venue} · {p.year}{p.coFirst && ' · co-first author'}
+          </div>
+        </div>
+      ))
+    }
+  </div>
+
+  <h2>Currently</h2>
+  <div class="stack stack--xs">
+    {
+      currently.map((row) => (
+        <div class="kv">
+          <span class="kv__key">{row.key}</span>
+          <span>
+            <span set:html={row.value} />
+            {row.note && <span class="muted"> {row.note}</span>}
+          </span>
+        </div>
+      ))
+    }
+  </div>
+
+  <hr class="rule rule--section" />
+
+  <SocialRow />
+</Page>

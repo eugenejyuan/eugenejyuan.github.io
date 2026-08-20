@@ -1,0 +1,131 @@
+---
+import '../styles/main.css';
+import SearchDialog from '../components/SearchDialog.astro';
+import { site } from '../site.config';
+import { url } from '../lib/url';
+
+interface Props {
+  /** Page title, without the site suffix. Omit on the home page. */
+  title?: string;
+  description?: string;
+  lang?: 'en' | 'zh';
+  ogType?: 'website' | 'article';
+  /** Widen the column — for index-style pages that read as a table. */
+  wide?: boolean;
+  /** Keep the page out of search indexes — the 404, and anything like it. */
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description = site.description,
+  lang = 'en',
+  ogType = 'website',
+  wide = false,
+  noindex = false,
+} = Astro.props;
+
+const pageTitle = title ? `${title} — ${site.title}` : `${site.title} · ${site.author}`;
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+/* Social cards need an absolute URL — a root-relative one silently fails. */
+const ogImage = new URL(url('/og.png'), Astro.site).href;
+
+/* Stamped at build time. CI rebuilds on every push, so the footer year
+   keeps itself current without anyone remembering to edit it. */
+const buildYear = new Date().getFullYear();
+
+/* Every face is served from this origin — nothing here reaches a CDN.
+   Google Fonts is unreachable from mainland China, where the readers of
+   the 中文 posts are, and a render-blocking <link> to a dead host holds
+   up first paint until the socket times out: a blank page, not a fallback
+   font. scripts/sync-fonts.mjs vendors these out of pinned npm packages
+   into public/fonts/ before every build, so the ~9 MB of subsets never
+   enters git. See that file for the rest of the reasoning.
+
+   latin.css  Source Serif 4 (variable, opsz + wght, roman and italic)
+              and IBM Plex Mono 400/500 — latin and latin-ext only.
+   The two CJK sheets are 霞鹜文楷 Lite. WenKai's screen-tuned build ships
+   regular only, so headings and <strong> would be synthesised; the Lite
+   build is the one that carries a real 700, and taking regular from the
+   same build keeps a single consistent design across the two weights.
+   With 400 and 700 both present, CSS weight matching resolves the page's
+   500 titles to regular and its 600 headings to the true bold.
+
+   Each stylesheet points at its own woff2 chunks relatively, and the
+   browser fetches only those whose unicode-range the page touches — a
+   Latin page never downloads a byte of the CJK face, and vice versa. */
+const FONTS = [
+  url('/fonts/latin.css'),
+  url('/fonts/lxgwwenkailite-regular.css'),
+  url('/fonts/lxgwwenkailite-bold.css'),
+];
+---
+
+<!doctype html>
+<html lang={lang === 'zh' ? 'zh-Hans' : 'en'}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#fbfaf6" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <meta name="author" content={site.author} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, follow" />}
+
+    <link rel="icon" href={url('/favicon.svg')} type="image/svg+xml" />
+    <link rel="alternate" type="application/rss+xml" title={site.title} href={url('/rss.xml')} />
+    <link rel="sitemap" href={url('/sitemap-index.xml')} />
+
+    {FONTS.map((href) => <link rel="stylesheet" href={href} />)}
+
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content={site.title} />
+    <meta property="og:title" content={title ?? site.title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={lang === 'zh' ? 'zh_CN' : 'en_US'} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${site.title} — ${site.author}`} />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={ogImage} />
+    {site.twitter && <meta name="twitter:creator" content={`@${site.twitter}`} />}
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <div class={`page${wide ? ' page--wide' : ''}`}>
+      <div class="topbar">
+        <button
+          type="button"
+          class="search-trigger"
+          id="search-trigger"
+          aria-label="Search posts (Command K)">search ⌘K</button>
+      </div>
+
+      <main class="wrap" id="main">
+        <slot />
+
+        {/* The repository splits its licence in two — MIT for the code,
+            CC BY-NC-SA for the writing — and the writing is what a reader
+            actually arrives at, so the terms belong on the page and not
+            only in a file on GitHub. */}
+        <footer class="site-footer">
+          © {buildYear} {site.author} ·
+          <a
+            href="https://creativecommons.org/licenses/by-nc-sa/4.0/"
+            rel="license noopener">prose CC BY-NC-SA 4.0</a> ·
+          <a href={`${site.repoUrl}/blob/main/LICENSE`} rel="license noopener">code MIT</a>
+        </footer>
+      </main>
+    </div>
+
+    <SearchDialog />
+  </body>
+</html>

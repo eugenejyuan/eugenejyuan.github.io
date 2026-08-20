@@ -25,12 +25,15 @@ bun-debug.log*
 .DS_Store
 .idea/
 .vscode/
+.claude/
 
 # TypeScript build info
 *.tsbuildinfo
 
-# (Legacy) Hugo ignores kept for reference
-/resources/_gen/
-/assets/jsconfig.json
-hugo_stats.json
-/.hugo_build.lock
+# Fonts vendored from node_modules by scripts/sync-fonts.mjs before each
+# build — 194 subset files, ~8 MB. Regenerate with `npm run sync:fonts`.
+public/fonts/
+
+# Unpublished drafts. Deliberately local-only: this repo is public, so
+# anything in here would be readable long before it is finished.
+/drafts/

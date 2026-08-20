@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://eugenejyuan.github.io/sitemap-index.xml

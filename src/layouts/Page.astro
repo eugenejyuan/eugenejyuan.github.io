@@ -1,0 +1,27 @@
+---
+import Base from './Base.astro';
+import { url } from '../lib/url';
+
+interface Props {
+  title: string;
+  /** Breadcrumb tail, e.g. "WRITING". Defaults to the uppercased title. */
+  eyebrow?: string;
+  description?: string;
+  /** Tighter title margin, for pages with a subtitle line underneath. */
+  tight?: boolean;
+  /** Widen the column — for index-style pages that read as a table. */
+  wide?: boolean;
+}
+
+const { title, eyebrow, description, tight = false, wide = false } = Astro.props;
+---
+
+<Base title={title} description={description} wide={wide}>
+  <div class="eyebrow">
+    <a href={url('/')}>← WORKING NOTES</a> / {eyebrow ?? title.toUpperCase()}
+  </div>
+
+  <h1 class={`title-page${tight ? ' title-page--tight' : ''}`}>{title}</h1>
+
+  <slot />
+</Base>

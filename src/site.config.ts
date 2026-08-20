@@ -1,138 +1,41 @@
-import type { CardListData, Config, IntegrationUserConfig, ThemeUserConfig } from 'astro-pure/types'
-
-export const theme: ThemeUserConfig = {
-  // [Basic]
-  /** Title for your website. Will be used in metadata and as browser tab title. */
-  title: 'Origin Space',
-  /** Will be used in index page & copyright declaration */
+/** Single source of truth for site-wide copy and profile links. */
+export const site = {
+  title: 'Working Notes',
   author: 'Jing Yuan',
-  /** Description metadata for your website. Can be used in page metadata. */
-  description: 'Play with AGI.',
-  /** The default favicon for your site which should be a path to an image in the `public/` directory. */
-  favicon: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f973.svg',
-  /** The default social card image for your site which should be a path to an image in the `public/` directory. */
-  socialCard: '/images/social-card.png',
-  /** Specify the default language for this site. */
-  locale: {
-    lang: 'en-US',
-    attrs: 'en_US',
-    // Date locale
-    dateLocale: 'en-US',
-    dateOptions: {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric'
-    }
-  },
-  /** Set a logo image to show in the homepage. */
-  logo: {
-    src: '',
-    alt: 'Avatar'
-  },
-
-  titleDelimiter: '•',
-  prerender: true, // pagefind search is not supported with prerendering disabled
-  npmCDN: 'https://cdn.jsdelivr.net/npm',
-
-  // Still in test
-  head: [
-    /* Telegram channel */
-    // {
-    //   tag: 'meta',
-    //   attrs: { name: 'telegram:channel', content: '@cworld0_cn' },
-    //   content: ''
-    // }
-  ],
-  customCss: [],
-
-  /** Configure the header of your site. */
-  header: {
-    menu: [
-      { title: 'Blog', link: '/blog' },
-      { title: 'Publications', link: '/publications' },
-      { title: 'About', link: '/about' }
-    ]
-  },
-
-  /** Configure the footer of your site. */
-  footer: {
-    // Year format
-    year: `© ${new Date().getFullYear()}`,
-    // year: `© 2019 - ${new Date().getFullYear()}`,
-    links: [],
-    /** Enable displaying a “Astro & Pure theme powered” link in your site’s footer. */
-    credits: true,
-    /** Optional details about the social media accounts for this site. */
-    social: {}
-  },
-
-  // [Content]
-  content: {
-    /** External links configuration */
-    externalLinks: {
-      content: '',
-      /** Properties for the external links element */
-      properties: {
-        style: 'user-select:none'
-      }
-    },
-    /** Blog page size for pagination (optional) */
-    blogPageSize: 8,
-    // Currently support weibo, x, bluesky
-    share: ['weibo', 'x', 'bluesky']
-  }
-}
-
-export const integ: IntegrationUserConfig = {
-  // [Links]
-  // https://astro-pure.js.org/docs/integrations/links
-  links: {
-    // Friend logbook
-    logbook: [],
-    // Yourself link info
-    applyTip: [
-      { name: 'Name', val: theme.title },
-      { name: 'Desc', val: theme.description || 'Null' },
-      { name: 'Link', val: 'https://eugenejyuan.github.io/' },
-      { name: 'Avatar', val: 'https://eugenejyuan.github.io/favicon/favicon.ico' }
-    ],
-    // Cache avatars in `public/avatars/` to improve user experience.
-    cacheAvatar: false
-  },
-  // [Search]
-  pagefind: true,
-  // Add a random quote to the footer (default on homepage footer)
-  // See: https://astro-pure.js.org/docs/integrations/advanced#web-content-render
-  // [Quote]
-  quote: {
-    // Use a local static JSON to avoid external requests in production.
-    server: '/quote.json',
-    target: `(data) => (data.quote || '')`
-  },
-  // [Typography]
-  // https://unocss.dev/presets/typography
-  typography: {
-    class: 'prose text-base',
-    // The style of blockquote font `normal` / `italic` (default to italic in typography)
-    blockquoteStyle: 'italic',
-    // The style of inline code block `code` / `modern` (default to code in typography)
-    inlineCodeBlockStyle: 'modern'
-  },
-  // [Lightbox]
-  // A lightbox library that can add zoom effect
-  // https://astro-pure.js.org/docs/integrations/others#medium-zoom
-  mediumZoom: {
-    enable: true, // disable it will not load the whole library
-    selector: '.prose .zoomable',
-    options: {
-      className: 'zoomable'
-    }
-  },
-  // Comment system
-  waline: {
-    enable: false
-  }
-}
-
-const config = { ...theme, integ } as Config
-export default config
+  authorCn: '袁璟',
+  location: 'Shanghai, CN',
+  /**
+   * Contact address, ROT13'd — deliberately, not for secrecy.
+   *
+   * This repo is public and so is the built HTML, and address harvesters
+   * regex both for `name@host.tld`. Storing the rotated form means the plain
+   * address exists in neither; SocialRow decodes it in the browser, on the
+   * first hover or focus of the email link. Set '' to drop the link entirely.
+   *
+   * To re-encode after changing it — ROT13 is its own inverse, so the same
+   * command also decodes what is here:
+   *
+   *   node -p "'you@example.com'.replace(/[a-z]/gi, c => String.fromCharCode(
+   *     (c <= 'Z' ? 90 : 122) >= (c = c.charCodeAt(0) + 13) ? c : c - 26))"
+   */
+  emailRot13: 'rhtrarwlhna@tznvy.pbz',
+  description:
+    "A slow-burning notebook. I write here whenever something I've been thinking " +
+    'about feels worth writing down. Drafts in 中文 / English, revised in public.',
+  /**
+   * The interests note. Rendered verbatim on both the home page and About,
+   * label included — this is the only place it needs changing.
+   */
+  interests:
+    'currently interested in: continual adaptation, generative models, ' +
+    'and whatever eventually makes AGI.dev compile',
+  github: 'eugenejyuan',
+  /** This site's own repository. The footer links its LICENSE from here. */
+  repoUrl: 'https://github.com/eugenejyuan/eugenejyuan.github.io',
+  /** Handle only — SocialRow builds the URL. Set '' to hide the link. */
+  twitter: 'eugenejyuan',
+  /** Full profile URL. Set '' to hide the link. */
+  scholarUrl: 'https://scholar.google.com/citations?user=ECegJ0EAAAAJ',
+  /** Optional portrait on the About page, e.g. '/portrait.jpg' in public/. */
+  portrait: '' as string,
+};

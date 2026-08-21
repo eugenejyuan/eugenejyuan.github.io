@@ -1,93 +1,116 @@
 ---
 import 'katex/dist/katex.min.css';
 import Base from './Base.astro';
+import Toc from '../components/Toc.astro';
+import Sidenotes from '../components/Sidenotes.astro';
 import { site } from '../site.config';
 import { url } from '../lib/url';
 import { inline, plain, isoDate, dottedDate } from '../lib/inline';
 import type { Post } from '../lib/posts';
+import type { MarkdownHeading } from 'astro';
 
 interface Props {
   post: Post;
+  /** Headings from `render()`, for the contents rail. */
+  headings?: MarkdownHeading[];
   /** Older post. */
   prev?: Post;
   /** Newer post. */
   next?: Post;
 }
 
-const { post, prev, next } = Astro.props;
+const { post, headings = [], prev, next } = Astro.props;
 const { title, date, lang, tag, read, revised, abstract, refs } = post.data;
 
 const description = abstract ? plain(abstract).slice(0, 200) : site.description;
+
+/* A single section heading is a subhead, not a table of contents — a
+   rail listing one entry is furniture with nothing to do. */
+const contents = headings.filter((h) => h.depth === 2 || h.depth === 3);
+const showToc = contents.filter((h) => h.depth === 2).length > 1;
 ---
 
-<Base title={title} description={description} lang={lang} ogType="article">
-  <div class="eyebrow eyebrow--center">
-    <a href={url('/')}>← WORKING NOTES</a> / {dottedDate(date)}
-  </div>
+{/* Three children, in reading order: the front matter, the contents,
+    the article. On a wide screen the grid in main.css puts the contents
+    in the left margin beside the article instead; on a narrow one they
+    stay in this order, which is why the contents sit here and not
+    inside the article. */}
+<Base title={title} description={description} lang={lang} ogType="article" rails>
+  <header class="post-head">
+    <div class="eyebrow eyebrow--center">
+      <a href={url('/')}>← WORKING NOTES</a> / {dottedDate(date)}
+    </div>
 
-  <h1 class="post-title">{title}</h1>
-  <div class="post-author">{site.author}</div>
+    <h1 class="post-title">{title}</h1>
+    <div class="post-author">{site.author}</div>
 
-  <div class="post-meta">
-    {read && <>{read} read · </>}
-    <a href={url(`/posts?tag=${encodeURIComponent(tag)}`)}>#{tag}</a>
-    {revised && <> · revised {isoDate(revised)}</>}
-  </div>
+    <div class="post-meta">
+      {read && <>{read} read · </>}
+      <a href={url(`/posts?tag=${encodeURIComponent(tag)}`)}>#{tag}</a>
+      {revised && <> · revised {isoDate(revised)}</>}
+    </div>
 
-  {
-    abstract && (
-      <>
-        <div class="label">ABSTRACT</div>
-        <p class="post-abstract" set:html={inline(abstract)} />
-      </>
-    )
-  }
-
-  <hr class="rule" />
-
-  <div class="prose">
-    <slot />
-  </div>
-
-  {
-    refs.length > 0 && (
-      <>
-        <div class="refs-head">── References ─────────────────────────────────</div>
-        <div class="refs">
-          <ol>
-            {refs.map((r) => (
-              <li set:html={inline(r)} />
-            ))}
-          </ol>
-        </div>
-      </>
-    )
-  }
-
-  <hr class="rule" style="margin:30px 0 12px" />
-
-  <nav class="post-nav" aria-label="More posts">
     {
-      prev ? (
-        <a class="post-nav__prev" href={url(`/posts/${prev.id}`)} title={prev.data.title}>
-          ← prev
-        </a>
-      ) : (
-        <a class="post-nav__prev" href={url('/posts')}>
-          ← all posts
-        </a>
+      abstract && (
+        <>
+          <div class="label">ABSTRACT</div>
+          <p class="post-abstract" set:html={inline(abstract)} />
+        </>
       )
     }
+
+    <hr class="rule" />
+  </header>
+
+  {showToc && <Toc headings={contents} />}
+
+  <div class="post-body">
+    <div class="prose">
+      <slot />
+    </div>
+
     {
-      next ? (
-        <a class="post-nav__next" href={url(`/posts/${next.id}`)} title={next.data.title}>
-          next →
-        </a>
-      ) : (
-        <a class="post-nav__next" href={url('/posts')}>
-          all posts →
-        </a>
+      refs.length > 0 && (
+        <>
+          <div class="refs-head">── References ─────────────────────────────────</div>
+          <div class="refs">
+            <ol>
+              {refs.map((r) => (
+                <li set:html={inline(r)} />
+              ))}
+            </ol>
+          </div>
+        </>
       )
     }
-  </nav>
+
+    <hr class="rule" style="margin:30px 0 12px" />
+
+    <nav class="post-nav" aria-label="More posts">
+      {
+        prev ? (
+          <a class="post-nav__prev" href={url(`/posts/${prev.id}`)} title={prev.data.title}>
+            ← prev
+          </a>
+        ) : (
+          <a class="post-nav__prev" href={url('/posts')}>
+            ← all posts
+          </a>
+        )
+      }
+      {
+        next ? (
+          <a class="post-nav__next" href={url(`/posts/${next.id}`)} title={next.data.title}>
+            next →
+          </a>
+        ) : (
+          <a class="post-nav__next" href={url('/posts')}>
+            all posts →
+          </a>
+        )
+      }
+    </nav>
+  </div>
+
+  <Sidenotes />
 </Base>

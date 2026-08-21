@@ -4,6 +4,7 @@ import { unified } from '@astrojs/markdown-remark';
 import sitemap from '@astrojs/sitemap';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
+import remarkSidenotes from './src/lib/remark-sidenotes.mjs';
 
 /**
  * Shiki theme matching the design's code block:
@@ -64,7 +65,7 @@ export default defineConfig({
     // passing them as `markdown.remarkPlugins` is deprecated and silently
     // does nothing under the new default.
     processor: unified({
-      remarkPlugins: [remarkMath],
+      remarkPlugins: [remarkMath, remarkSidenotes],
       rehypePlugins: [[rehypeKatex, { output: 'html', throwOnError: false }]],
     }),
     shikiConfig: { theme: paper, wrap: false },

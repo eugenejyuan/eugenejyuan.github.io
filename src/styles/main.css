@@ -23,7 +23,63 @@
 
   /* ── Type ───────────────────────────────────────────────── */
   --serif: 'Source Serif 4', 'LXGW WenKai Lite', Georgia, serif;
-  --mono:  'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  /* The CJK face sits at the end of the mono stack. Plex Mono has no Han
+     glyphs, so before the contents rail existed the only mono text on the
+     page was Latin and the gap never showed. A 中文 post's headings go in
+     that rail, and without this they come out in whatever the reader's OS
+     calls `monospace` — the one place on the site not using the face it
+     ships. It goes *after* the generic, not before: WenKai also carries
+     ⌘ (U+2318), at full CJK width, and putting it earlier would let it
+     claim the search key cap. Per-character fallback means Latin and the
+     ▸ ─ · furniture never leave Plex Mono either way. */
+  --mono:  'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace, 'LXGW WenKai Lite';
+
+  /* ── Type scale ─────────────────────────────────────────────
+     Every size on the site is one of these; nothing below sets a px
+     size of its own.
+
+     The one thing the scale insists on is --t-body: the reading size,
+     the same on every page, so a post's prose, the home abstract and
+     the About lede are set alike — moving between them should not feel
+     like the type changed size underneath you. The rest is judged by
+     eye. A row in a list is scanned rather than read and carries a date
+     and a badge on its own baseline, so it sits a step under at --t-sub,
+     close enough to the furniture beside it that the row reads as one
+     object. Anything that only says where the reader is — dates,
+     numbers, tags, badges — is mono, small, and never borrows a serif
+     step at all.
+
+     16px, not 17: Source Serif 4's x-height is 0.452em against
+     Newsreader's 0.512em, so it reads smaller than it measures and 17px
+     was set to buy that step back. In a 760px column it bought too
+     much.                                                              */
+  --t-display:  30px;    /* home title; the post title's upper bound   */
+  --t-title:    24px;    /* page titles; the post title's lower bound  */
+  --t-body:     16px;    /* long-form text, every page: prose and lede */
+  --t-sub:      15px;    /* rows and subheads — scanned, not read      */
+  --t-fine:     13.5px;  /* fine print: captions, notes, refs, italics */
+
+  --t-code:     12.5px;  /* code blocks                                */
+  --t-meta:     12px;    /* mono furniture: dates, filters, prev/next  */
+  --t-label:    11px;    /* mono labels and badges                     */
+  --t-micro:    10.5px;  /* the smallest of it: eyebrow, hints, footer */
+
+  /* The two rails get their own knobs rather than borrowing a mono
+     step. They are the only place that face has to carry Han (a 中文
+     post's headings go in the contents), and the only text on the page
+     not set to the column's measure — 176px and 200px against 760px —
+     so neither the size set for Latin nor the size set for full width
+     is the right one to inherit. */
+  --t-toc:      11px;
+  --t-toc-3:    10.5px;
+  --t-note-rail: 12.5px; /* a margin note, once it is in the margin    */
+
+  /* Leading lives with its rule, except for the four the CJK block
+     below has to reach; those have to be tokens to be reachable. */
+  --lh-body:      1.7;
+  --lh-toc:       1.5;
+  --lh-note:      1.7;   /* a note inline, at --t-fine                 */
+  --lh-note-rail: 1.6;   /* a note in the margin: narrower, so tighter */
 
   /* ── Layout ─────────────────────────────────────────────────
      --measure is the column width. It is redeclared on .page so
@@ -47,12 +103,8 @@ body {
   background: var(--paper);
   color: var(--ink);
   font-family: var(--serif);
-  /* 17px, not 16: Source Serif 4's x-height is 0.452em against
-     Newsreader's 0.512em, so the same nominal size reads a step smaller.
-     17 × 0.452 lands on 7.7px — the same optical size as the 16px Georgia
-     that ruanyifeng.com sets its body in.                               */
-  font-size: 17px;
-  line-height: 1.7;
+  font-size: var(--t-body);
+  line-height: var(--lh-body);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 
@@ -65,9 +117,28 @@ body {
   font-synthesis-style: none;
 }
 
-/* 楷体's strokes are lighter and its counters more open than 思源宋's, so
-   the Chinese pages come down a step and open their leading to compensate. */
-body:lang(zh) { font-size: 16px; line-height: 1.9; }
+/* ── CJK correction ───────────────────────────────────────────
+   Two adjustments, opposite directions. 楷体's strokes are lighter and
+   its counters more open than 思源宋's, so the running text comes down a
+   step and opens its leading. Small text goes the other way: WenKai's
+   Han glyphs carry more detail per em than Source Serif's Latin, so the
+   sizes that read as "small" in English read as "squint" in 中文, and
+   the fine print and the rails come up instead.
+
+   Re-declaring tokens rather than restating rules is what keeps every
+   中文 adjustment on the site inside one block. */
+body:lang(zh) {
+  --t-body:     15px;
+  --t-fine:     14px;
+  --t-toc:      12.5px;
+  --t-toc-3:    12px;
+  --t-note-rail: 13.5px;
+
+  --lh-body:      1.9;
+  --lh-toc:       1.6;
+  --lh-note:      1.85;
+  --lh-note-rail: 1.75;
+}
 
 a { color: var(--link); text-decoration: none; }
 a:hover { text-decoration: underline; text-underline-offset: 3px; }
@@ -99,7 +170,7 @@ img { max-width: 100%; height: auto; }
 .skip-link {
   position: absolute; left: -9999px; top: 0;
   background: var(--paper); color: var(--ink-strong);
-  font-family: var(--mono); font-size: 12px;
+  font-family: var(--mono); font-size: var(--t-meta);
   padding: 8px 14px; z-index: 100;
 }
 .skip-link:focus { left: 8px; top: 8px; }
@@ -107,7 +178,7 @@ img { max-width: 100%; height: auto; }
 /* ── Search affordance (aligned to the column's right edge) ── */
 .search-trigger {
   position: absolute; top: 24px; right: var(--gutter);
-  font-family: var(--mono); font-size: 10.5px;
+  font-family: var(--mono); font-size: var(--t-micro);
   color: var(--muted); letter-spacing: 0.06em;
   background: none; border: 0; padding: 4px; cursor: pointer;
   line-height: 1.4;
@@ -116,57 +187,57 @@ img { max-width: 100%; height: auto; }
 
 /* ── Metadata primitives ──────────────────────────────────── */
 .eyebrow {
-  font-family: var(--mono); font-size: 10.5px;
+  font-family: var(--mono); font-size: var(--t-micro);
   color: var(--muted); letter-spacing: 0.12em;
 }
 .eyebrow a { color: var(--muted); }
 .eyebrow--center { text-align: center; }
 
 .label {
-  font-family: var(--mono); font-size: 11px;
+  font-family: var(--mono); font-size: var(--t-label);
   color: var(--muted); letter-spacing: 0.2em;
   text-align: center; margin-bottom: 10px;
 }
 
 .muted     { color: var(--muted); }
-.mono-note { font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: 0.03em; }
-.mono-link { font-family: var(--mono); font-size: 12px; }
+.mono-note { font-family: var(--mono); font-size: var(--t-label); color: var(--muted); letter-spacing: 0.03em; }
+.mono-link { font-family: var(--mono); font-size: var(--t-meta); }
 
 /* ── Headings ─────────────────────────────────────────────── */
 h1, h2, h3 { color: var(--ink-strong); font-weight: 500; }
 
 .title-home {
   margin: 30px 0 10px; text-align: center;
-  font-size: 30px; font-weight: 500; line-height: 1.15;
+  font-size: var(--t-display); font-weight: 500; line-height: 1.15;
   letter-spacing: -0.01em;
 }
-.title-page  { margin: 22px 0 30px; font-size: 24px; font-weight: 500; }
+.title-page  { margin: 22px 0 30px; font-size: var(--t-title); font-weight: 500; }
 .title-page--tight { margin-bottom: 6px; }
 
 h2 {
   margin: 42px 0 14px;
-  font-size: 17px; font-weight: 600;
+  font-size: var(--t-body); font-weight: 600;
 }
-h3 { margin: 28px 0 10px; font-size: 15.5px; font-weight: 600; }
+h3 { margin: 28px 0 10px; font-size: var(--t-sub); font-weight: 600; }
 
 /* ── Home masthead ────────────────────────────────────────── */
-.byline  { text-align: center; font-size: 16px; color: var(--ink-strong); }
+.byline  { text-align: center; font-size: var(--t-sub); color: var(--ink-strong); }
 .subline {
-  text-align: center; font-size: 13px; color: var(--muted);
+  text-align: center; font-size: var(--t-fine); color: var(--muted);
   font-style: italic; margin: 8px 0 38px;
 }
 .subline a { color: var(--muted); }
 
 .abstract {
   margin: 0 0 34px; text-align: justify;
-  color: var(--ink-soft); font-size: 15.5px;
+  color: var(--ink-soft); font-size: var(--t-body);
 }
 /* The interests note (site.config → `interests`) is one string rendered on
    both pages; only the treatment differs — mono under the home abstract,
    italic under "Research taste" on About. */
 .interests { margin: -22px 0 34px; }
 .research-interests {
-  margin: 0; font-size: 13.5px; font-style: italic; color: var(--muted);
+  margin: 0; font-size: var(--t-fine); font-style: italic; color: var(--muted);
 }
 
 hr, .rule {
@@ -181,29 +252,31 @@ hr, .rule {
 .stack--xs  { gap: 8px; }
 
 .post-row { display: flex; gap: 16px; align-items: baseline; }
-.post-row__date {
-  flex: none; width: 94px;
-  font-family: var(--mono); font-size: 12px; color: var(--muted);
-  font-variant-numeric: tabular-nums;
+/* The date and the [EN] / [中] badge belong to each other, not to the
+   title: markers, not words. Set apart from the date, the badge made the
+   row read as three sizes instead of one line. */
+.post-row__date, .post-row__lang {
+  flex: none;
+  font-family: var(--mono); font-size: var(--t-meta); color: var(--muted);
 }
-.post-row__lang { flex: none; font-size: 11px; color: var(--muted); }
-.post-row__title { color: var(--ink); font-size: 15.5px; line-height: 1.5; }
+.post-row__date { width: 94px; font-variant-numeric: tabular-nums; }
+.post-row__title { color: var(--ink); font-size: var(--t-sub); line-height: 1.5; }
 /* The old 500 bump patched 思源宋 looking thin beside Newsreader. WenKai
    has no 500, so it only rounded to 400 or faked a bolder face. */
 .cjk { font-weight: 400; }
 
-.news-row { font-size: 15px; }
+.news-row { font-size: var(--t-sub); }
 .news-row__date {
-  font-family: var(--mono); font-size: 12px; color: var(--muted);
+  font-family: var(--mono); font-size: var(--t-meta); color: var(--muted);
   margin-right: 12px; font-variant-numeric: tabular-nums;
 }
 
 /* ── Archive (all posts) ──────────────────────────────────── */
-.archive-meta { font-size: 13.5px; color: var(--muted); font-style: italic; margin-bottom: 28px; }
+.archive-meta { font-size: var(--t-fine); color: var(--muted); font-style: italic; margin-bottom: 28px; }
 
 .filters {
   display: flex; flex-wrap: wrap; gap: 16px;
-  font-family: var(--mono); font-size: 12px;
+  font-family: var(--mono); font-size: var(--t-meta);
   margin-bottom: 24px; align-items: baseline;
 }
 .filters__lang { margin-left: auto; display: flex; gap: 14px; }
@@ -219,16 +292,25 @@ hr, .rule {
   display: flex; gap: 14px; align-items: baseline;
   padding: 15px 0; border-bottom: 1px solid var(--rule-light);
 }
-.entry__n {
-  flex: none; min-width: 30px;
-  font-family: var(--mono); font-size: 12px; color: var(--muted);
-  font-variant-numeric: tabular-nums;
+.entry__body { flex: 1; font-size: var(--t-sub); line-height: 1.6; }
+/* Roman, not italic. The row is set as a bibliography entry, where an
+   italic title is the convention — but the same post is listed in roman
+   on the home page, and one title in two styles reads as two kinds of
+   thing. The number, date and tail already do the citation work. */
+.entry__link { color: var(--ink); }
+
+/* Everything framing the title is one register — index, badge, date,
+   reading time, tag — so the row reads as a title with a frame rather
+   than a sentence that trails off into grey. The date opens a gap of
+   its own: a word space after the title's full stop left 12px numerals
+   reading as part of the 15px serif in front of them. */
+.entry__n, .entry__lang, .entry__date, .entry__tail {
+  font-family: var(--mono); font-size: var(--t-meta); color: var(--muted);
 }
-.entry__body { flex: 1; font-size: 15.5px; line-height: 1.6; }
-.entry__lang { color: var(--muted); font-size: 11px; margin-right: 8px; }
-.entry__link { color: var(--ink); font-style: italic; }
-.entry__date { color: var(--muted); font-family: var(--mono); font-size: 12px; }
-.entry__tail { color: var(--muted); }
+.entry__n    { flex: none; min-width: 30px; font-variant-numeric: tabular-nums; }
+.entry__lang { margin-right: 8px; }
+.entry__date { margin-left: 10px; }
+
 .archive__empty {
   padding: 26px 0; color: var(--muted); font-style: italic;
   border-bottom: 1px solid var(--rule-light);
@@ -243,28 +325,29 @@ hr, .rule {
   margin-top: 4px; background: var(--code-bg);
 }
 
-/* Same optical size as the home page's ABSTRACT — 15.5px, not the 17px body. */
+/* The About page's own running text — the same size as a post's prose and
+   the home page's abstract, all three off --t-body. */
 .lede p {
   margin: 0 0 16px; text-align: justify;
-  color: var(--ink-soft); font-size: 15.5px;
+  color: var(--ink-soft); font-size: var(--t-body);
 }
 .lede p:last-child { margin-bottom: 0; }
 
-.work { display: flex; flex-direction: column; gap: 20px; font-size: 15px; color: var(--ink-soft); }
+.work { display: flex; flex-direction: column; gap: 20px; font-size: var(--t-sub); color: var(--ink-soft); }
 .work__head {
   display: flex; gap: 16px; align-items: baseline; justify-content: space-between;
 }
 .work__title { font-weight: 500; color: var(--ink-strong); }
 .work__links {
   flex: none; display: flex; gap: 12px;
-  font-family: var(--mono); font-size: 11px;
+  font-family: var(--mono); font-size: var(--t-label);
 }
 .work__desc { margin-top: 3px; text-align: justify; }
 
-.kv { display: flex; gap: 16px; align-items: baseline; font-size: 15px; }
+.kv { display: flex; gap: 16px; align-items: baseline; font-size: var(--t-sub); }
 .kv__key {
   flex: none; width: 82px;
-  font-family: var(--mono); font-size: 11.5px; color: var(--muted);
+  font-family: var(--mono); font-size: var(--t-label); color: var(--muted);
 }
 
 /* ── Social row ───────────────────────────────────────────── */
@@ -274,7 +357,7 @@ hr, .rule {
 }
 .social a {
   color: var(--icon); display: flex; align-items: center; gap: 8px;
-  font-family: var(--mono); font-size: 11px;
+  font-family: var(--mono); font-size: var(--t-label);
 }
 .social a:hover { color: var(--ink-strong); }
 .social svg { flex: none; }
@@ -285,19 +368,19 @@ hr, .rule {
 /* ── Post ─────────────────────────────────────────────────── */
 .post-title {
   margin: 28px 0 12px; text-align: center;
-  font-size: clamp(24px, 2.6vw, 30px); font-weight: 500;
+  font-size: clamp(var(--t-title), 2.6vw, var(--t-display)); font-weight: 500;
   line-height: 1.3; letter-spacing: -0.005em;
   text-wrap: balance;
 }
-.post-author { text-align: center; font-size: 15px; color: var(--ink-strong); }
+.post-author { text-align: center; font-size: var(--t-sub); color: var(--ink-strong); }
 .post-meta {
-  text-align: center; font-size: 13px; color: var(--muted);
+  text-align: center; font-size: var(--t-fine); color: var(--muted);
   font-style: italic; margin: 6px 0 34px;
 }
 .post-meta a { color: var(--muted); }
 .post-abstract {
   margin: 0 0 32px; text-align: justify; font-style: italic;
-  color: var(--ink-soft); font-size: 15px;
+  color: var(--ink-soft); font-size: var(--t-body);
 }
 
 .prose > *:first-child { margin-top: 0; }
@@ -328,7 +411,7 @@ hr, .rule {
   border-left: 2px solid var(--muted);
   padding: 18px 22px;
   overflow-x: auto;
-  font-family: var(--mono); font-size: 12.5px; line-height: 1.7;
+  font-family: var(--mono); font-size: var(--t-code); line-height: 1.7;
   color: var(--ink-soft);
 }
 .prose pre code {
@@ -338,21 +421,21 @@ hr, .rule {
 /* Tables */
 .prose table {
   width: 100%; border-collapse: collapse;
-  margin: 24px 0; font-size: 14.5px;
+  margin: 24px 0; font-size: var(--t-sub);
 }
 .prose th, .prose td {
   text-align: left; padding: 9px 12px 9px 0;
   border-bottom: 1px solid var(--rule-light);
 }
 .prose th {
-  font-family: var(--mono); font-size: 11.5px; font-weight: 500;
+  font-family: var(--mono); font-size: var(--t-label); font-weight: 500;
   color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase;
 }
 
 /* Figures */
 .prose figure { margin: 28px 0; }
 .prose figcaption {
-  margin-top: 10px; font-size: 13px; color: var(--muted);
+  margin-top: 10px; font-size: var(--t-fine); color: var(--muted);
   font-style: italic; text-align: center;
 }
 
@@ -373,27 +456,188 @@ hr, .rule {
 /* References */
 .refs-head {
   margin-top: 36px;
-  font-family: var(--mono); font-size: 11px; color: var(--muted);
+  font-family: var(--mono); font-size: var(--t-label); color: var(--muted);
   white-space: nowrap; overflow: hidden;
 }
 .refs {
-  font-size: 13.5px; color: var(--ink-soft);
+  font-size: var(--t-fine); color: var(--ink-soft);
   margin-top: 10px; line-height: 1.8;
 }
 .refs ol { margin: 0; padding-left: 0; list-style: none; counter-reset: ref; }
 .refs li { counter-increment: ref; }
 .refs li::before {
   content: "[" counter(ref) "] "; color: var(--muted);
-  font-family: var(--mono); font-size: 12px;
+  font-family: var(--mono); font-size: var(--t-meta);
 }
 
 /* Prev / next */
 .post-nav {
   display: flex; gap: 20px;
-  font-family: var(--mono); font-size: 12px; color: var(--muted);
+  font-family: var(--mono); font-size: var(--t-meta); color: var(--muted);
 }
 .post-nav a { color: var(--muted); }
 .post-nav__next { margin-left: auto; text-align: right; }
+
+/* ── Post rails: contents left, margin notes right ────────────
+   A 760px column on a 1440px window leaves 340px of nothing down
+   each side. This gives that space something to do without moving
+   the column a pixel: .wrap--rails is a grid whose middle track is
+   --measure and whose outer tracks are an equal 1fr, so the text
+   stays exactly where it has always been and the rails only ever
+   occupy what was already empty.
+
+   Both rails are additions, not requirements. The widths below need
+   760 + 2×202 = 1164 to sit in, so the grid engages at 1240px — about
+   30px of air each side once a scrollbar has taken its cut. Below
+   that it never engages at all: the contents fold into a disclosure
+   above the article and the notes fall inline behind their reference
+   numbers, which is the layout this site had before. Every switch is
+   a checkbox rather than a button, so both work with scripting off;
+   the only script is the overlap pass in components/Sidenotes.astro. */
+:root {
+  --toc-w:     176px;
+  --toc-gap:    26px;
+  --note-w:    200px;
+  --note-gap:   28px;
+}
+
+/* Visually hidden, still focusable and still checkable. */
+.toc-toggle, .note-toggle {
+  position: absolute; width: 1px; height: 1px;
+  margin: -1px; padding: 0; border: 0;
+  clip-path: inset(50%); overflow: hidden; white-space: nowrap;
+}
+
+/* ── Contents ─────────────────────────────────────────────── */
+.toc-rail { margin: 0 0 34px; }
+.toc { font-family: var(--mono); }
+
+.toc-head {
+  display: inline-block; cursor: pointer;
+  font-size: var(--t-micro); letter-spacing: 0.2em; color: var(--muted);
+}
+.toc-head::after { content: ' ▸'; letter-spacing: 0; }
+.toc-toggle:checked ~ .toc-head::after { content: ' ▾'; }
+.toc-head:hover { color: var(--ink-strong); }
+.toc-toggle:focus-visible ~ .toc-head {
+  outline: 2px solid var(--link); outline-offset: 3px; border-radius: 2px;
+}
+
+.toc-list { display: none; margin: 12px 0 0; padding: 0; list-style: none; }
+.toc-toggle:checked ~ .toc-list { display: block; }
+
+/* The hairline is drawn per item rather than down the list, so the
+   section being read can ink its own segment without breaking it. */
+.toc-item { border-left: 1px solid var(--rule-light); padding-left: 14px; }
+.toc-item--3 { padding-left: 28px; }
+.toc-item a {
+  display: block; padding: 4px 0;
+  font-size: var(--t-toc); line-height: var(--lh-toc); color: var(--muted);
+}
+.toc-item--3 a { font-size: var(--t-toc-3); }
+.toc-item a:hover { color: var(--ink-strong); }
+.toc-item.is-current { border-left-color: var(--ink-strong); }
+.toc-item.is-current > a { color: var(--ink-strong); }
+
+/* A link to the section you just jumped to. Present for keyboard focus,
+   revealed on hover; components/Toc.astro adds them. */
+.prose h2, .prose h3 { scroll-margin-top: 28px; }
+.head-anchor {
+  font-family: var(--mono); font-weight: 400; font-size: 0.7em;
+  color: var(--rule); margin-left: 9px;
+  opacity: 0; transition: opacity 120ms ease;
+}
+.prose h2:hover .head-anchor,
+.prose h3:hover .head-anchor,
+.head-anchor:focus-visible { opacity: 1; }
+.head-anchor:hover { color: var(--muted); text-decoration: none; }
+
+/* ── Margin notes ─────────────────────────────────────────────
+   Written as `^[…]` in the Markdown — see src/lib/remark-sidenotes.mjs
+   for the syntax and for the raw <aside class="note"> form that takes
+   block content. Narrow screens are the fallback state below: the note
+   is folded away behind its number and opens in place. */
+.note-ref {
+  font-family: var(--mono); font-size: 0.56em;
+  vertical-align: super; line-height: 1;
+  color: var(--link); cursor: pointer;
+  padding: 0 1px 0 2px;
+}
+.note-ref:hover { color: var(--ink-strong); }
+/* On a narrow screen the number is the control that opens the note, and
+   at 0.56em it is nothing to aim a thumb at. The hit area grows without
+   the line box noticing. */
+.note-ref { position: relative; }
+.note-ref::after { content: ''; position: absolute; inset: -9px -5px; }
+.note-toggle:focus-visible + .note-ref {
+  outline: 2px solid var(--link); outline-offset: 2px; border-radius: 2px;
+}
+
+.note {
+  display: none;
+  margin: 16px 0 18px; padding: 0 0 0 16px;
+  border-left: 2px solid var(--rule);
+  font-size: var(--t-fine); line-height: var(--lh-note); text-align: left;
+  color: var(--muted);
+}
+/* `+` twice, not `~`: two notes in one paragraph are siblings, and a
+   general sibling would open both from either number. */
+.note-toggle:checked + .note-ref + .note { display: block; }
+.note__n {
+  font-family: var(--mono); font-size: var(--t-micro);
+  color: var(--muted); margin-right: 7px; vertical-align: 0.15em;
+}
+/* A hand-written block note has no number to open it, so it is simply
+   always there. */
+aside.note { display: block; }
+
+@media (min-width: 1240px) {
+  .wrap--rails {
+    max-width: none; padding-inline: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, var(--measure)) minmax(0, 1fr);
+  }
+  .wrap--rails > * { grid-column: 2; padding-inline: var(--gutter); }
+  .wrap--rails > .post-head   { grid-row: 1; }
+  .wrap--rails > .post-body   { grid-row: 2; }
+  .wrap--rails > .site-footer { grid-row: 3; }
+
+  /* The rail is a full-height grid item and the nav inside it is what
+     sticks — an element stretched to its row has nowhere to travel. */
+  .wrap--rails > .toc-rail {
+    grid-row: 2; grid-column: 1;
+    justify-self: end; margin: 0;
+    width: calc(var(--toc-w) + var(--toc-gap));
+    padding: 0 var(--toc-gap) 0 0;
+  }
+  .toc {
+    position: sticky; top: 44px;
+    max-height: calc(100vh - 96px); overflow-y: auto;
+  }
+  .toc-head { cursor: default; }
+  .toc-head::after { content: none; }
+  .toc-list { display: block; }
+
+  /* Notes leave the column but not the document: they keep their place
+     in the source, and so in the reading order, and are pulled sideways
+     from the line they were written on. `top` stays auto — that is the
+     static position, the line the note came from — so the alignment
+     costs no script. Overlaps do; components/Sidenotes.astro adds a
+     margin-top to the ones that would collide. */
+  .prose { position: relative; }
+  .prose .note {
+    display: block; position: absolute;
+    right: calc(-1 * (var(--note-w) + var(--note-gap)));
+    width: var(--note-w);
+    margin: 0; padding: 0; border-left: 0;
+    font-size: var(--t-note-rail); line-height: var(--lh-note-rail);
+  }
+
+  /* In the margin the number is a marker, not a control. */
+  .note-ref { color: var(--muted); }
+  .note-ref::after { content: none; }
+  .note-ref:hover, .note-ref:hover + .note { color: var(--ink-strong); }
+}
 
 /* ── Search modal ─────────────────────────────────────────── */
 .search-backdrop {
@@ -413,7 +657,7 @@ hr, .rule {
   max-height: 70vh;
 }
 .search-input {
-  font-family: var(--serif); font-size: 16px; color: var(--ink);
+  font-family: var(--serif); font-size: max(16px, var(--t-body)); color: var(--ink);
   background: none; border: 0; border-bottom: 1px solid var(--rule);
   padding: 18px 22px; width: 100%;
 }
@@ -431,26 +675,26 @@ hr, .rule {
   background: var(--code-bg); text-decoration: none;
 }
 .search-results mark { background: var(--mark); color: inherit; }
-.search-result__title { font-size: 15px; line-height: 1.45; }
+.search-result__title { font-size: var(--t-sub); line-height: 1.45; }
 .search-result__meta {
-  font-family: var(--mono); font-size: 11px; color: var(--muted);
+  font-family: var(--mono); font-size: var(--t-label); color: var(--muted);
   margin-top: 3px;
 }
 .search-empty {
   padding: 18px 22px; color: var(--muted);
-  font-style: italic; font-size: 14px;
+  font-style: italic; font-size: var(--t-fine);
 }
 .search-hint {
   border-top: 1px solid var(--rule-light);
   padding: 10px 22px;
-  font-family: var(--mono); font-size: 10.5px; color: var(--muted);
+  font-family: var(--mono); font-size: var(--t-micro); color: var(--muted);
   display: flex; gap: 16px;
 }
 
 /* ── 404 ──────────────────────────────────────────────────── */
 .notfound { text-align: center; padding-top: 48px; }
 .notfound__code {
-  font-family: var(--mono); font-size: 48px; color: var(--rule);
+  font-family: var(--mono); font-size: calc(var(--t-display) * 1.6); color: var(--rule);
   letter-spacing: 0.08em; line-height: 1;
 }
 
@@ -495,17 +739,42 @@ hr, .rule {
 }
 
 /* ── Motion ───────────────────────────────────────────────── */
+/* Jumping from the contents rail to a section reads better as a travel
+   than as a cut — it shows the reader where they landed. */
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
 }
 
 /* ── Print ────────────────────────────────────────────────── */
 @media print {
-  .search-trigger, .search-backdrop, .post-nav, .skip-link { display: none !important; }
-  body { background: #fff; font-size: 11pt; }
+  .search-trigger, .search-backdrop, .post-nav, .skip-link,
+  .toc-rail, .head-anchor { display: none !important; }
+  /* The lang selector is repeated so a 中文 post prints at the same
+     size as an English one; its leading is left alone. */
+  body, body:lang(zh) {
+    background: #fff;
+    --t-body: 11pt; --t-sub: 10pt; --t-fine: 9.5pt;
+    --t-note-rail: 9.5pt;
+  }
   .wrap { max-width: none; padding: 0; }
+  .wrap--rails { display: block !important; }
+  .wrap--rails > * { padding-inline: 0 !important; }
   a { color: inherit; text-decoration: none; }
   .prose pre { border-left: 1px solid #999; background: #f5f5f5; }
+
+  /* Paper has no margin to put them in and no way to unfold them, so
+     the notes print where they were written. */
+  .prose { position: static !important; }
+  .prose .note {
+    display: block !important; position: static !important;
+    width: auto !important; margin: 10pt 0 !important;
+    padding-left: 10pt !important; border-left: 1pt solid #999 !important;
+    font-size: var(--t-note-rail) !important;
+  }
 }
 
 /* ── Site footer ──────────────────────────────────────────────
@@ -513,12 +782,33 @@ hr, .rule {
    other mono furniture (.eyebrow, .search-hint) so it recedes:
    present for anyone who looks for terms, invisible to anyone
    reading. Links stay --muted rather than --link — a blue pair
-   at the foot of every page would pull the eye down the column. */
+   at the foot of every page would pull the eye down the column.
+
+   The mark above it is a short left-hung rule — a footnote rule,
+   the way a book sets one — and not a second divider across the
+   column. Most pages already close on a full-width rule of their
+   own (the one over About's social row, the one over a post's
+   prev/next nav, the last row of the archive), and a full-width
+   footer border landed a near-identical line ~90px under it: two
+   parallel rules boxing in a strip of small type, with the second
+   one separating nothing the first had not already separated.
+   Short and light, it still gives the block something to hang
+   from on the pages that end without a rule — home, 404 — where
+   whitespace alone would leave the licence line floating. */
 .site-footer {
-  margin-top: 76px;
-  padding-top: 18px;
-  border-top: 1px solid var(--rule-light);
-  font-family: var(--mono); font-size: 10.5px;
+  margin-top: 88px;
+  font-family: var(--mono); font-size: var(--t-micro);
   color: var(--muted); letter-spacing: 0.03em; line-height: 1.9;
 }
+.site-footer::before {
+  content: ''; display: block;
+  width: 36px; height: 1px; margin-bottom: 15px;
+  background: var(--rule);
+}
 .site-footer a { color: var(--muted); }
+
+/* Lives here rather than in the responsive section above, which the
+   base rule would otherwise override — same specificity, later wins. */
+@media (max-width: 620px) {
+  .site-footer { margin-top: 64px; }
+}

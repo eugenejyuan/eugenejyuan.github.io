@@ -1,0 +1,117 @@
+---
+import type { MarkdownHeading } from 'astro';
+
+interface Props {
+  /** Post headings, straight from `render()`. */
+  headings: MarkdownHeading[];
+}
+
+/* h2 and h3 only: h1 is the post title, and anything below h3 is
+   detail a 184px rail has no room to show. */
+const items = Astro.props.headings.filter((h) => h.depth === 2 || h.depth === 3);
+---
+
+{/* One element, two shapes. Wide: a sticky nav in the left margin.
+    Narrow: a disclosure sitting above the article. The open/closed
+    state is a checkbox rather than a button so the narrow form works
+    with scripting off; on wide screens CSS keeps the list open and the
+    checkbox never comes into it. */}
+<aside class="toc-rail">
+  <nav class="toc" id="toc" aria-label="Contents">
+    <input type="checkbox" class="toc-toggle" id="toc-toggle" />
+    <label class="toc-head" for="toc-toggle">CONTENTS</label>
+
+    <ol class="toc-list">
+      {
+        items.map((h) => (
+          <li class={`toc-item toc-item--${h.depth}`}>
+            <a href={`#${h.slug}`}>{h.text}</a>
+          </li>
+        ))
+      }
+    </ol>
+  </nav>
+</aside>
+
+<script>
+  const toc = document.getElementById('toc');
+  const prose = document.querySelector('.prose');
+
+  if (toc && prose) {
+    /* The rail gets you to a section; this gets you a link to one.
+       Built here rather than in the Markdown pipeline because it is
+       furniture, not content — it should never reach the RSS feed. */
+    prose.querySelectorAll<HTMLElement>('h2[id], h3[id]').forEach((h) => {
+      const a = document.createElement('a');
+      a.className = 'head-anchor';
+      a.href = `#${h.id}`;
+      a.textContent = '#';
+      a.setAttribute('aria-label', `Link to “${h.textContent?.trim() ?? ''}”`);
+      h.appendChild(a);
+    });
+
+    const items = Array.from(toc.querySelectorAll<HTMLAnchorElement>('.toc-list a'))
+      .map((a) => ({
+        li: a.parentElement as HTMLElement,
+        target: document.getElementById(decodeURIComponent(a.hash.slice(1))),
+      }))
+      .filter((x): x is { li: HTMLElement; target: HTMLElement } => Boolean(x.target));
+
+    if (items.length) {
+      /* The rail scrolls on its own once a post has more headings than
+         fit beside the window. Nudge that scrollport directly —
+         scrollIntoView would take the page with it. */
+      const keepVisible = (li: HTMLElement) => {
+        if (toc.scrollHeight <= toc.clientHeight) return;
+        const top = li.offsetTop;
+        const bottom = top + li.offsetHeight;
+        if (top < toc.scrollTop) toc.scrollTop = top;
+        else if (bottom > toc.scrollTop + toc.clientHeight) toc.scrollTop = bottom - toc.clientHeight;
+      };
+
+      let current = -1;
+
+      const sync = () => {
+        /* The section being read is the last heading to have crossed the
+           top of the window. Before the first one crosses, nothing is
+           marked — the reader is still in the opening. */
+        let next = -1;
+        for (let i = 0; i < items.length; i += 1) {
+          if (items[i].target.getBoundingClientRect().top > 96) break;
+          next = i;
+        }
+        /* Nothing can cross once the page has bottomed out, so the last
+           section would otherwise never light up on a short final one. */
+        if (window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 4) {
+          next = items.length - 1;
+        }
+        if (next === current) return;
+
+        const off = items[current]?.li;
+        off?.classList.remove('is-current');
+        off?.firstElementChild?.removeAttribute('aria-current');
+
+        current = next;
+
+        const on = items[current]?.li;
+        on?.classList.add('is-current');
+        on?.firstElementChild?.setAttribute('aria-current', 'location');
+        if (on) keepVisible(on);
+      };
+
+      let queued = false;
+      const schedule = () => {
+        if (queued) return;
+        queued = true;
+        requestAnimationFrame(() => {
+          queued = false;
+          sync();
+        });
+      };
+
+      sync();
+      addEventListener('scroll', schedule, { passive: true });
+      addEventListener('resize', schedule);
+    }
+  }
+</script>

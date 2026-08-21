@@ -28,6 +28,8 @@ src/content.config.ts frontmatter schema for posts
 src/content/posts/    published posts (.md)
 src/data/             publications, news, "currently" list
 src/layouts/          Base (<head>, shell), Page, PostLayout
+src/components/       search dialog, contents rail, margin-note layout
+src/lib/              formatting helpers, and the margin-note plugin
 src/styles/main.css   the whole design system, one file
 drafts/               local-only, git-ignored
 ```
@@ -36,6 +38,43 @@ Writing a post means dropping a `.md` file into `src/content/posts/` with the
 frontmatter that `src/content.config.ts` documents. Set `draft: true` to keep
 it out of the build, the feed, the sitemap and search while still previewing
 it under `npm run dev`.
+
+## The margins
+
+The reading column is 760px and stays 760px — that is the measure the type
+was set for. But a desktop window is not 760px, so on screens wider than
+1240px a post page puts the space either side to work: the table of contents
+on the left, the post's own notes on the right.
+
+The contents rail builds itself from the `##` and `###` headings, sticks
+beside the article as you scroll, and marks the section you are in. A post
+with only one section heading doesn't get one.
+
+Notes are written inline, with `^[…]`, at the point they belong to:
+
+```markdown
+The measurement is noisy^[σ ≈ 0.4 on the held-out split], so the
+ranking is not stable.
+```
+
+They come out in the right margin, aligned with the line that produced them,
+and numbered in order. Ordinary inline Markdown works inside the brackets —
+emphasis, `code`, links, `$maths$`. A note that wants block content can be
+written as raw HTML between two paragraphs instead, and gets the same
+treatment minus the number:
+
+```html
+<aside class="note">Anything that will not fit on one line.</aside>
+```
+
+Narrower than 1240px, neither rail has anywhere to live: the contents fold
+into a `CONTENTS` disclosure above the article and each note folds behind its
+reference number, opening in place when tapped. Both of those are checkboxes,
+not scripts, so they work with JavaScript off — the only script involved is
+the pass that stops two notes written a line apart from landing on top of
+each other. See the header of `src/lib/remark-sidenotes.mjs` for the syntax's
+one limitation, and the rails section of `src/styles/main.css` for the
+layout.
 
 ## Licence
 

@@ -62,8 +62,23 @@ export function stripMarkdown(src = ''): string {
     .replace(/`([^`]+)`/g, '$1')            // inline code
     .replace(/\$\$[\s\S]*?\$\$/g, ' ')      // display math
     .replace(/\$[^$\n]+\$/g, ' ')           // inline math
-    .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')  // images
-    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1') // links → text
+    /* `[^\][]*`, not `[^\]]*`: the text class excludes the opening
+       bracket too. A link nested inside a margin note gives a `[` before
+       the `]`, and a class that allows it lets the match start at the
+       note's own bracket and run straight through the link. */
+    .replace(/!\[[^\][]*\]\([^)]*\)/g, ' ')  // images
+    .replace(/\[([^\][]*)\]\([^)]*\)/g, '$1') // links → text
+    /* Margin notes (`^[…]`, src/lib/remark-sidenotes.mjs): the brackets
+       go, the text stays. A note is still the author's prose, and a
+       reader searching for a phrase should find it wherever it was
+       written. After the link rule, not before — a link inside a note
+       still has its own `]`, and matching first would stop there and
+       leave the rest of the note dangling. Newline excluded for the
+       same reason: an unclosed `^[` must not swallow the paragraphs
+       under it. The spaces matter: without them the note's first word
+       fuses to the word it was hung on, and a phrase search across that
+       seam finds nothing. */
+    .replace(/\^\[([^\]\n]*)\]/g, ' $1 ')
     .replace(/^#{1,6}\s+/gm, '')            // heading markers
     .replace(/^\s{0,3}>\s?/gm, '')          // blockquotes
     .replace(/[*_]{1,3}([^*_]+)[*_]{1,3}/g, '$1')

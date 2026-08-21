@@ -12,6 +12,12 @@ interface Props {
   ogType?: 'website' | 'article';
   /** Widen the column — for index-style pages that read as a table. */
   wide?: boolean;
+  /**
+   * Open the margins either side of the column to the contents rail and
+   * the margin notes. Post pages only; see the rails section of
+   * src/styles/main.css. The column itself does not move.
+   */
+  rails?: boolean;
   /** Keep the page out of search indexes — the 404, and anything like it. */
   noindex?: boolean;
 }
@@ -22,6 +28,7 @@ const {
   lang = 'en',
   ogType = 'website',
   wide = false,
+  rails = false,
   noindex = false,
 } = Astro.props;
 
@@ -109,7 +116,7 @@ const FONTS = [
           aria-label="Search posts (Command K)">search ⌘K</button>
       </div>
 
-      <main class="wrap" id="main">
+      <main class={`wrap${rails ? ' wrap--rails' : ''}`} id="main">
         <slot />
 
         {/* The repository splits its licence in two — MIT for the code,

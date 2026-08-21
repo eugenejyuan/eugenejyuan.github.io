@@ -1,0 +1,64 @@
+---
+/**
+ * Margin notes — the layout pass only. The notes themselves come out of
+ * the Markdown (`^[…]`, see src/lib/remark-sidenotes.mjs) and are placed
+ * by CSS: each one is absolutely positioned with `top: auto`, which
+ * leaves it at the static position of the line it was written on. That
+ * is the whole feature for a post whose notes are spread out, and it
+ * survives with scripting off.
+ *
+ * What CSS cannot do is notice that two notes written a line apart would
+ * land on top of each other. This walks them in order and pushes the
+ * overlapping ones down — nothing else.
+ */
+---
+
+<script>
+  const prose = document.querySelector<HTMLElement>('.prose');
+  const notes = prose ? Array.from(prose.querySelectorAll<HTMLElement>('.note')) : [];
+
+  if (prose && notes.length) {
+    /* Must match the breakpoint in main.css that moves notes into the
+       margin. Below it they are inline and stack themselves. */
+    const wide = matchMedia('(min-width: 1240px)');
+    const GAP = 16;
+
+    const layout = () => {
+      notes.forEach((note) => {
+        note.style.marginTop = '';
+      });
+      if (!wide.matches) return;
+
+      /* Every note is out of flow, so pushing one never moves the next:
+         each top read in this loop is the unadjusted, as-written one. */
+      const origin = prose.getBoundingClientRect().top;
+      let floor = -Infinity;
+
+      for (const note of notes) {
+        const box = note.getBoundingClientRect();
+        const top = box.top - origin;
+        const shift = Math.max(0, floor - top);
+        if (shift) note.style.marginTop = `${shift}px`;
+        floor = top + shift + box.height + GAP;
+      }
+    };
+
+    let queued = false;
+    const schedule = () => {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(() => {
+        queued = false;
+        layout();
+      });
+    };
+
+    layout();
+    addEventListener('resize', schedule);
+    wide.addEventListener('change', schedule);
+    /* Webfonts land after first paint and move every line under them. */
+    document.fonts?.ready.then(schedule);
+    /* Images, and a note opened inline on a narrow screen. */
+    new ResizeObserver(schedule).observe(prose);
+  }
+</script>

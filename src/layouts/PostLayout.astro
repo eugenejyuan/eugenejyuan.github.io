@@ -6,6 +6,7 @@ import Sidenotes from '../components/Sidenotes.astro';
 import { site } from '../site.config';
 import { url } from '../lib/url';
 import { inline, plain, isoDate, dottedDate } from '../lib/inline';
+import { blogPosting, person, webSite } from '../lib/schema';
 import type { Post } from '../lib/posts';
 import type { MarkdownHeading } from 'astro';
 
@@ -35,7 +36,13 @@ const showToc = contents.filter((h) => h.depth === 2).length > 1;
     in the left margin beside the article instead; on a narrow one they
     stay in this order, which is why the contents sit here and not
     inside the article. */}
-<Base title={title} description={description} lang={lang} ogType="article" rails>
+<Base
+  title={title}
+  description={description}
+  lang={lang}
+  ogType="article"
+  rails
+  schema={[blogPosting(Astro.site, Astro.url, post), person(Astro.site), webSite(Astro.site)]}>
   <header class="post-head">
     <div class="eyebrow eyebrow--center">
       <a href={url('/')}>← WORKING NOTES</a> / {dottedDate(date)}

@@ -11,12 +11,21 @@ interface Props {
   tight?: boolean;
   /** Widen the column — for index-style pages that read as a table. */
   wide?: boolean;
+  /** JSON-LD nodes for this page. Built by src/lib/schema.ts. */
+  schema?: unknown[];
 }
 
-const { title, eyebrow, description, tight = false, wide = false } = Astro.props;
+const {
+  title,
+  eyebrow,
+  description,
+  tight = false,
+  wide = false,
+  schema = [],
+} = Astro.props;
 ---
 
-<Base title={title} description={description} wide={wide}>
+<Base title={title} description={description} wide={wide} schema={schema}>
   <div class="eyebrow">
     <a href={url('/')}>← WORKING NOTES</a> / {eyebrow ?? title.toUpperCase()}
   </div>

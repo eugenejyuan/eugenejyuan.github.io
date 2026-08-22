@@ -1,4 +1,5 @@
 // @ts-check
+import { execFileSync } from 'node:child_process';
 import { defineConfig } from 'astro/config';
 import { unified } from '@astrojs/markdown-remark';
 import sitemap from '@astrojs/sitemap';
@@ -36,6 +37,52 @@ const paper = {
   ],
 };
 
+/**
+ * When a page's source last actually changed, ISO-8601, for <lastmod>.
+ *
+ * Google reads lastmod to decide what to recrawl first — but only for as
+ * long as it believes it. The tempting one-liner, `lastmod: new Date()`,
+ * stamps every URL with the build time, so moving a margin in the CSS
+ * announces that all four pages changed; do that a few times and the
+ * field is discounted for good. Git already knows the answer per file, so
+ * ask it rather than invent one.
+ *
+ * Needs real history: `actions/checkout` clones shallow by default and
+ * would answer for one commit and shrug at everything else, hence
+ * `fetch-depth: 0` in .github/workflows/deploy.yml. When git has nothing
+ * to say — a post written but not yet committed — the URL ships with no
+ * lastmod at all, which is the honest outcome and better than a guess.
+ *
+ * @param {string} file  Repo-relative path.
+ * @returns {string | undefined}
+ */
+function lastCommitted(file) {
+  try {
+    const iso = execFileSync('git', ['log', '-1', '--format=%cI', '--', file], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
+    return iso || undefined;
+  } catch {
+    return undefined; // no git, no history, no file — all the same answer here
+  }
+}
+
+/**
+ * Sitemap URL → the file that produces it. `build.format: 'directory'`
+ * means every entry arrives with a trailing slash, the root included.
+ *
+ * @param {string} pathname
+ * @returns {string | undefined}
+ */
+function sourceOf(pathname) {
+  if (pathname === '/') return 'src/pages/index.astro';
+  if (pathname === '/about/') return 'src/pages/about.astro';
+  if (pathname === '/posts/') return 'src/pages/posts/index.astro';
+  const post = pathname.match(/^\/posts\/(.+?)\/?$/);
+  return post ? `src/content/posts/${post[1]}.md` : undefined;
+}
+
 export default defineConfig({
   // ── Deployment ────────────────────────────────────────────────
   // User site: repo eugenejyuan/eugenejyuan.github.io, served at the
@@ -55,7 +102,15 @@ export default defineConfig({
   // HTML whitespace rules rather than sprinkling {' '} to compensate.
   compressHTML: true,
 
-  integrations: [sitemap()],
+  integrations: [
+    sitemap({
+      serialize(item) {
+        const source = sourceOf(new URL(item.url).pathname);
+        const lastmod = source && lastCommitted(source);
+        return lastmod ? { ...item, lastmod } : item;
+      },
+    }),
+  ],
 
   markdown: {
     // Astro 7 swapped the default Markdown processor to the native

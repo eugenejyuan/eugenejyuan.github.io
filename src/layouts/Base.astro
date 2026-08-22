@@ -20,6 +20,8 @@ interface Props {
   rails?: boolean;
   /** Keep the page out of search indexes — the 404, and anything like it. */
   noindex?: boolean;
+  /** JSON-LD nodes for this page. Built by src/lib/schema.ts. */
+  schema?: unknown[];
 }
 
 const {
@@ -30,12 +32,32 @@ const {
   wide = false,
   rails = false,
   noindex = false,
+  schema = [],
 } = Astro.props;
 
 const pageTitle = title ? `${title} — ${site.title}` : `${site.title} · ${site.author}`;
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
 /* Social cards need an absolute URL — a root-relative one silently fails. */
 const ogImage = new URL(url('/og.png'), Astro.site).href;
+
+/* One <script> per page holding every node, rather than one script each:
+   an `@graph` is how the nodes get to reference one another by `@id` and
+   be read as a single connected description instead of loose fragments.
+
+   The escape is not decoration. `set:html` does not encode anything, and
+   the parser ends a <script> at the first literal `</script>` wherever it
+   appears — inside a JSON string included. A post title containing one
+   would otherwise close the block early and spill the rest into the page
+   as markup. `\u003c` is an ordinary escape to a JSON reader and invisible
+   to the HTML parser, so escaping every `<` costs nothing and removes the
+   whole class of problem. */
+const jsonLd =
+  schema.length > 0
+    ? JSON.stringify({ '@context': 'https://schema.org', '@graph': schema }).replace(
+        /</g,
+        '\\u003c',
+      )
+    : '';
 
 /* Stamped at build time. CI rebuilds on every push, so the footer year
    keeps itself current without anyone remembering to edit it. */
@@ -102,6 +124,8 @@ const FONTS = [
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content={ogImage} />
     {site.twitter && <meta name="twitter:creator" content={`@${site.twitter}`} />}
+
+    {jsonLd && <script type="application/ld+json" is:inline set:html={jsonLd} />}
   </head>
 
   <body>

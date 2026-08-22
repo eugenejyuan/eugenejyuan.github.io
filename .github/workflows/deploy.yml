@@ -21,8 +21,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      # Full history, not the default shallow clone: the sitemap's <lastmod>
+      # comes from each page's last commit date, and `git log` on a depth-1
+      # clone knows about exactly one commit.
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4

@@ -49,10 +49,13 @@
      numbers, tags, badges — is mono, small, and never borrows a serif
      step at all.
 
-     16px, not 17: Source Serif 4's x-height is 0.452em against
-     Newsreader's 0.512em, so it reads smaller than it measures and 17px
-     was set to buy that step back. In a 760px column it bought too
-     much.                                                              */
+     16px, not 17: an earlier note here set 17px to buy back a step it
+     said Source Serif 4 lost to a 0.452em x-height. That figure was read
+     off the wrong end of the opsz axis. x-height varies with optical
+     size in this face, and 0.452em is the 60pt cut; at the sizes this
+     scale actually uses it is 0.486em (opsz 16) — level with Georgia's
+     0.481em and WenKai's 0.484em. There was no deficit to buy back.
+     16px is right, but not for the reason it was written down for.     */
   --t-display:  30px;    /* home title; the post title's upper bound   */
   --t-title:    24px;    /* page titles; the post title's lower bound  */
   --t-body:     16px;    /* long-form text, every page: prose and lede */
@@ -366,10 +369,31 @@ hr, .rule {
 .social__email:hover { text-decoration: underline; text-underline-offset: 3px; }
 
 /* ── Post ─────────────────────────────────────────────────── */
+
+/* opsz, pinned. `font-optical-sizing: auto` is the CSS default — the one
+   registered axis that is on unless you turn it off — and it maps
+   font-size 1:1 onto Source Serif 4's opsz axis (8–60), so the face is
+   re-cut as it grows: narrower, finer in the hairlines, tighter in the
+   fit. On the home masthead that is the point. .title-home keeps `auto`
+   and reads as a title partly because of those cues, not only because it
+   is larger; the face is Fournier and Kis by way of Grießhammer, and a
+   30pt cut is what a punchcutter would have cut for a title anyway.
+
+   Here it is doing something no punchcutter ever did. The size is a
+   clamp, and 2.6vw crosses 24px at a 923px viewport and 30px at 1154px,
+   so anywhere in that band the cut slides with the window — drag the
+   edge and the letterforms reshape. Metal type's whole premise was that
+   the size was fixed the moment the punch was cut. A post title is also
+   not a masthead: the eye goes straight from it into the abstract and
+   the prose, so it wants less of a register break than the home page
+   does. 26 keeps the display character and stops it breathing.
+
+   WenKai carries no opsz axis, so a 中文 title simply ignores this. */
 .post-title {
   margin: 28px 0 12px; text-align: center;
   font-size: clamp(var(--t-title), 2.6vw, var(--t-display)); font-weight: 500;
   line-height: 1.3; letter-spacing: -0.005em;
+  font-variation-settings: 'opsz' 26;
   text-wrap: balance;
 }
 .post-author { text-align: center; font-size: var(--t-sub); color: var(--ink-strong); }

@@ -23,6 +23,12 @@ export const site = {
     "A slow-burning notebook. I write here whenever something I've been thinking " +
     'about feels worth writing down. Drafts in 中文 / English, revised in public.',
   /**
+   * One line about the person, as opposed to the site. Used as the About
+   * page's meta description and as `description` on the Person node in
+   * src/lib/schema.ts — the two have to agree, so they come from here.
+   */
+  bio: 'Jing Yuan (袁璟) — most recently a Research Scientist at ByteDance Seed (AI for Science), working on generative modeling and cryo-EM.',
+  /**
    * The interests note. Rendered verbatim on both the home page and About,
    * label included — this is the only place it needs changing.
    */

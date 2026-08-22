@@ -5,6 +5,7 @@ import { news } from '../data/news';
 import { allPosts } from '../lib/posts';
 import { url } from '../lib/url';
 import { langBadge, isoDate } from '../lib/inline';
+import { person, webSite } from '../lib/schema';
 
 const posts = await allPosts();
 const recent = posts.slice(0, 5);
@@ -13,7 +14,7 @@ const now = new Date();
 const version = `v${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}`;
 ---
 
-<Base>
+<Base schema={[webSite(Astro.site), person(Astro.site)]}>
   <div class="eyebrow eyebrow--center">WORKING NOTES · {version}</div>
 
   <h1 class="title-home">{site.title}</h1>

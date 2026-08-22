@@ -5,6 +5,7 @@ import { site } from '../site.config';
 import { publications } from '../data/publications';
 import { currently } from '../data/currently';
 import { url } from '../lib/url';
+import { person, webSite, profilePage } from '../lib/schema';
 
 /** The About page shows the featured papers only; the rest stay in the data file. */
 const recent = publications.filter((p) => p.featured);
@@ -13,7 +14,8 @@ const recent = publications.filter((p) => p.featured);
 <Page
   title="About"
   eyebrow="ABOUT"
-  description="Jing Yuan — most recently a Research Scientist at ByteDance Seed (AI for Science).">
+  description={site.bio}
+  schema={[profilePage(Astro.site, Astro.url), person(Astro.site), webSite(Astro.site)]}>
   <div class="lede-row">
     <div class="lede">
       <p>
@@ -52,7 +54,7 @@ const recent = publications.filter((p) => p.featured);
     somewhere to die — small, controlled settings where you can tell why something worked, or why it
     didn't. If the signal survives there, then scale it. If it only appears after enough knobs,
     compute, and storytelling, I'm usually less interested. The best result, to me, is one that
-    changes how I think the system should be built, not just the number at the end of the table.
+    changes how I think the system should be built, not just a better number in a table.
   </p>
   <p class="research-interests">{site.interests}</p>
 
